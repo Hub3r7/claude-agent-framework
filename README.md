@@ -32,7 +32,7 @@ This is a generalized framework extracted from real-world production use. It def
 3. Answer the orchestrator's questions about your project. It will:
    - Learn your stack, architecture, and conventions
    - Fill all `[PROJECT-SPECIFIC]` sections in CLAUDE.md and agent files
-   - Generate your `docs/project-context.md`
+   - Generate your `.claude/docs/project-context.md`
 
 4. Start working. The orchestrator will automatically:
    - Classify changes by tier (0-4)
@@ -91,7 +91,7 @@ CLAUDE.md                          → Project rules + orchestrator instructions
   docs.md                          → Documentation
   ops-automation.md                → Workflow automation
   test-runner.md                   → Test execution
-docs/
+.claude/docs/
   project-context.md               → Quick session orientation (template)
   bootstrap-protocol.md            → How bootstrap works
 ```

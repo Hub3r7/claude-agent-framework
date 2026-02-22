@@ -97,7 +97,7 @@ Once confirmed, update the following files by replacing `[PROJECT-SPECIFIC]` sec
 9. **`.claude/agents/test-runner.md`** — Add:
    - Test framework, conventions, directory structure, coverage expectations
 
-10. **`docs/project-context.md`** — Fill in all sections.
+10. **`.claude/docs/project-context.md`** — Fill in all sections.
 
 ### Phase 4 — Verification
 

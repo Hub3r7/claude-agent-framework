@@ -2,7 +2,7 @@
 
 > **New project?** Run the bootstrap protocol: tell the orchestrator about your project
 > and it will customize all `[PROJECT-SPECIFIC]` sections automatically.
-> See `docs/bootstrap-protocol.md` for details, or just say "bootstrap this project".
+> See `.claude/docs/bootstrap-protocol.md` for details, or just say "bootstrap this project".
 
 ## Bootstrap
 
@@ -17,10 +17,10 @@ must run the bootstrap protocol before any development work begins.
 1. Asks the user about the project (purpose, stack, architecture, conventions, security)
 2. Summarizes the project profile for user confirmation
 3. Fills all `[PROJECT-SPECIFIC]` sections in CLAUDE.md and all agent files
-4. Populates `docs/project-context.md`
+4. Populates `.claude/docs/project-context.md`
 5. Verifies no placeholders remain
 
-**Full protocol:** `docs/bootstrap-protocol.md`
+**Full protocol:** `.claude/docs/bootstrap-protocol.md`
 
 After bootstrap, this section can be removed or kept as a reference for re-bootstrap.
 
@@ -82,7 +82,7 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 - Does NOT write or review code directly — delegate to developer or quality-gate
 - Does NOT use EnterPlanMode tool — orchestrators coordinate, agents execute
 
-**New session orientation:** Read `docs/project-context.md` first for a quick project overview, then this file for full rules. The two together give complete orientation without re-reading all source files.
+**New session orientation:** Read `.claude/docs/project-context.md` first for a quick project overview, then this file for full rules. The two together give complete orientation without re-reading all source files.
 
 ## Agent Knowledge Hierarchy
 
