@@ -104,6 +104,12 @@ while preserving what still applies.
 
 ## Origin
 
-This framework was extracted from the Opsbox project where it was iteratively
-refined through real development of 5 production modules with full Tier 4
-security review chains.
+This framework was not designed upfront — it emerged through iterative,
+real-world development over several intensive days of building production
+software with Claude Code. Every agent role, every tier boundary, every
+loop-back rule was shaped by actual failures and fixes, not theory.
+
+The result is an agent infrastructure that works in practice — not because
+a committee designed it, but because it was pressure-tested through hundreds
+of review cycles including full Tier 4 security chains with offensive and
+defensive coverage.
