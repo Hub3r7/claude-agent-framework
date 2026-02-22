@@ -1,0 +1,6 @@
+# Agent working notes — private per-session memory, never committed
+.agentNotes/
+
+# OS files
+.DS_Store
+Thumbs.db
