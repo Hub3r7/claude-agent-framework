@@ -15,9 +15,16 @@ This framework separates those concerns into specialized agents with defined res
 
 ## Quick start
 
-1. Clone this repo into your project root:
+1. Download or copy these into your project root:
+   - `CLAUDE.md` — project rules and orchestrator instructions
+   - `.claude/agents/` — all 8 agent definitions
+   - `.claude/docs/` — bootstrap protocol and session orientation template
+
+   You can do this manually from the [repository](https://github.com/Hub3r7/claude-agent-framework), or:
    ```
-   git clone https://github.com/Hub3r7/claude-agent-framework.git
+   # Download and extract into current directory
+   curl -sL https://github.com/Hub3r7/claude-agent-framework/archive/refs/heads/main.tar.gz \
+     | tar xz --strip-components=1 claude-agent-framework-main/CLAUDE.md claude-agent-framework-main/.claude
    ```
 
 2. Open Claude Code and say:
