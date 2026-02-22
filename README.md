@@ -1,8 +1,11 @@
 # Claude Agent Framework
 
-A reusable agent infrastructure for Claude Code that provides structured, tiered
-review chains with quality gates, offensive/defensive security review, and
-iterative loop-back protocols.
+A reusable agent infrastructure for [Claude Code](https://claude.com/claude-code)
+(Anthropic's CLI for Claude) that provides structured, tiered review chains with
+quality gates, offensive/defensive security review, and iterative loop-back protocols.
+
+> **Requires Claude Code.** This framework uses Claude Code's agent system
+> (`.claude/agents/*.md` and `CLAUDE.md`). It does not work with other tools.
 
 ## What is this?
 
@@ -16,16 +19,12 @@ This is a generalized framework extracted from real-world production use. It def
 
 ## Quick start
 
-1. Copy this framework to your project root:
+1. Clone this repo into your project:
    ```
-   cp -r claude-agent-framework/.claude /path/to/your/project/
-   cp claude-agent-framework/CLAUDE.md /path/to/your/project/
-   cp claude-agent-framework/.gitignore /path/to/your/project/  # or merge into existing
-   # Merge docs/ into your existing docs/ directory — do not overwrite:
-   cp -n claude-agent-framework/docs/*.md /path/to/your/project/docs/
+   git clone https://github.com/Hub3r7/claude-agent-framework.git
    ```
 
-2. Open Claude Code in your project and say:
+2. Open Claude Code and say:
    ```
    bootstrap this project
    ```
