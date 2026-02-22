@@ -1,25 +1,21 @@
 # Claude Agent Framework
 
-A reusable agent infrastructure for [Claude Code](https://claude.com/claude-code)
-(Anthropic's CLI for Claude) that provides structured, tiered review chains with
-quality gates, offensive/defensive security review, and iterative loop-back protocols.
+Most AI-assisted development is ad hoc: you ask Claude to write something, review it yourself, and hope nothing slips through. This framework replaces that with a structured, repeatable process.
 
-> **Requires Claude Code.** This framework uses Claude Code's agent system
-> (`.claude/agents/*.md` and `CLAUDE.md`). It does not work with other tools.
+It defines a team of 8 specialized agents, a 5-tier review system that scales depth with risk, and a loop-back protocol that enforces quality gates before any change advances. Everything is defined in markdown — no code to maintain, no tooling to integrate.
 
-## What is this?
+> **Requires Claude Code.** This framework uses Claude Code's sub-agent system
+> (`.claude/agents/*.md` and `CLAUDE.md`). It does not work with other AI tools or IDEs.
 
-This is a generalized framework extracted from real-world production use. It defines:
+## The problem it solves
 
-- **8 specialized agents** with clear roles, constraints, and collaboration protocols
-- **5-tier dev cycle** (Tier 0-4) that scales review depth with change complexity
-- **Loop-back protocol** where review agents issue PASS/FAIL verdicts — FAIL pauses the chain
-- **Knowledge hierarchy** (CLAUDE.md > docs > agent notes) preventing instruction drift
-- **Bootstrap protocol** that configures agents for your specific project through conversation
+When you ask Claude Code to implement something, a single context does everything: design, implementation, security review, documentation. That works for simple tasks. For anything with real complexity — external integrations, security-sensitive changes, shared code — a single pass is not enough. Blind spots compound.
+
+This framework separates those concerns into specialized agents with defined responsibilities, explicit handoff protocols, and mandatory review gates. A security reviewer is not also the implementer. A doc agent is not also the architect. The orchestrator (Claude Code itself) routes work through the correct chain based on the tier of the change.
 
 ## Quick start
 
-1. Clone this repo into your project:
+1. Clone this repo into your project root:
    ```
    git clone https://github.com/Hub3r7/claude-agent-framework.git
    ```
@@ -30,53 +26,55 @@ This is a generalized framework extracted from real-world production use. It def
    ```
 
 3. Answer the orchestrator's questions about your project. It will:
-   - Learn your stack, architecture, and conventions
-   - Fill all `[PROJECT-SPECIFIC]` sections in CLAUDE.md and agent files
-   - Generate your `.claude/docs/project-context.md`
+   - Learn your stack, architecture, conventions, and security posture
+   - Fill all `[PROJECT-SPECIFIC]` sections in `CLAUDE.md` and all agent files
+   - Generate your `.claude/docs/project-context.md` for fast session orientation
 
-4. Start working. The orchestrator will automatically:
-   - Classify changes by tier (0-4)
-   - Route to the correct agent chain
-   - Enforce quality gates with PASS/FAIL loop-back
+4. Start working normally. The orchestrator automatically:
+   - Classifies each change by tier (0-4)
+   - Routes to the correct agent chain
+   - Enforces PASS/FAIL quality gates with loop-back on failure
 
 ## Agent team
 
-| Agent | Role | Model | Tier |
-|-------|------|-------|------|
-| `architect` | Design + chain routing | opus | 2-4 |
-| `developer` | Implementation | opus | 1-4 |
-| `quality-gate` | Security + architecture review | sonnet | 1-4 |
-| `hunter` | Offensive security analysis | sonnet | 3-4 |
-| `defender` | Defensive security / hardening | sonnet | 3-4 |
-| `test-runner` | Test execution (on-demand) | haiku | user request |
-| `ops-automation` | Workflow automation | sonnet | on request |
-| `docs` | Documentation (always last) | sonnet | 0-4 |
+| Agent | Role | Tier |
+|-------|------|------|
+| `architect` | Design + chain routing | 2-4 |
+| `developer` | Implementation | 1-4 |
+| `quality-gate` | Security + architecture review | 1-4 (all code changes) |
+| `hunter` | Offensive security / attack surface analysis | 3-4 |
+| `defender` | Defensive security / hardening | 3-4 |
+| `test-runner` | Test execution and coverage | On request |
+| `ops-automation` | Workflow automation | On request |
+| `docs` | Documentation (always last) | 0-4 |
 
 ## Dev cycle tiers
 
-| Tier | Change type | Agents involved |
-|------|-------------|-----------------|
+| Tier | Change type | Chain |
+|------|-------------|-------|
 | 0 | Typo, doc edit, config label | Direct edit → docs |
-| 1 | Bug fix, small tweak | developer → quality-gate → docs |
+| 1 | Bug fix, small tweak, no new files | developer → quality-gate → docs |
 | 2 | New feature, refactor | architect → quality-gate → developer → quality-gate → docs |
-| 3 | External I/O, integrations | + hunter OR defender |
-| 4 | New component, security-critical | + hunter AND defender |
+| 3 | External I/O, integrations, new attack surface | + hunter OR defender |
+| 4 | New major component, security-critical, shared code | + hunter AND defender |
+
+The tier system exists to avoid two failure modes: under-reviewing risky changes, and over-reviewing trivial ones. A typo fix does not need 7 agents. A new authentication module does.
+
+**Loop-back protocol:** Every review agent (quality-gate, hunter, defender) issues an explicit PASS or FAIL verdict. FAIL pauses the chain and returns to developer with a numbered remediation list. The chain does not advance until PASS is issued. There is no limit on iterations.
 
 ## Key design decisions
 
-**Why text instructions instead of programmatic enforcement?**
-Text instructions interpreted by LLMs cover edge cases that rigid code cannot anticipate.
-The model understands the *intent* behind a rule, not just its literal expression.
-Combined with the PASS/FAIL loop-back protocol, this provides both flexibility and reliability.
+**Why markdown instructions instead of programmatic enforcement?**
+Text instructions interpreted by an LLM cover edge cases that rigid code cannot anticipate. The model understands the intent behind a rule, not just its literal form. The PASS/FAIL loop-back protocol provides the reliability that pure instruction-following lacks on its own.
 
-**Why quality over cost?**
-A Tier 4 chain is 7 agents. But one missed vulnerability costs more than 7 review passes.
-The tier system ensures you only pay the full cost when the blast radius justifies it.
+**Why a tiered system instead of always running all agents?**
+A Tier 4 chain costs 7 agent invocations. That is the right cost for a security-critical change to shared infrastructure. It is the wrong cost for a one-line bug fix. Tiering ensures the depth of review matches the blast radius of the change.
 
 **Why agent notes?**
-Agents accumulate project-specific knowledge through `.agentNotes/` — patterns they've seen,
-decisions they've made, gotchas they've encountered. This knowledge persists across sessions
-without polluting the authoritative instruction files.
+Agents accumulate project-specific knowledge across sessions through `.agentNotes/` — patterns they have seen, decisions they have made, gotchas they have encountered. Notes are subordinate to `CLAUDE.md` and agent instructions (never override authoritative rules), but they provide working memory that makes agents more effective over time.
+
+**Why a bootstrap protocol?**
+Generic agent instructions produce generic results. The bootstrap protocol replaces every `[PROJECT-SPECIFIC]` placeholder with real knowledge about your stack, architecture, and conventions — through a conversation, not a config file. The agents become specialists in your project, not generalists.
 
 ## Structure
 
@@ -93,26 +91,18 @@ CLAUDE.md                          → Project rules + orchestrator instructions
   test-runner.md                   → Test execution
 .claude/docs/
   project-context.md               → Quick session orientation (template)
-  bootstrap-protocol.md            → How bootstrap works
+  bootstrap-protocol.md            → Full bootstrap conversation protocol
 ```
 
 ## Re-bootstrap
 
-If your project evolves significantly (new language, architecture pivot), say
-"re-bootstrap" and the orchestrator will update the project-specific sections
-while preserving what still applies.
+If your project evolves significantly — new language, architecture pivot, major new component area — say "re-bootstrap" and the orchestrator will update the project-specific sections while preserving what still applies.
 
 ## Origin
 
-This framework was not designed upfront — it emerged through iterative,
-real-world development over several intensive days of building production
-software with Claude Code. Every agent role, every tier boundary, every
-loop-back rule was shaped by actual failures and fixes, not theory.
+This framework was not designed upfront. It emerged through iterative, real-world development over several intensive days of building production software with Claude Code. Every agent role, every tier boundary, every loop-back rule was shaped by actual failures and fixes — not theory.
 
-The result is an agent infrastructure that works in practice — not because
-a committee designed it, but because it was pressure-tested through hundreds
-of review cycles including full Tier 4 security chains with offensive and
-defensive coverage.
+The framework was validated on opsbox, a Python CLI tool for IT and security operations, where it ran hundreds of review cycles including full Tier 4 security chains with offensive and defensive coverage. What survived that process is what is here.
 
 ## License
 
