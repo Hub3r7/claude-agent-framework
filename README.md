@@ -1,17 +1,13 @@
 # Claude Agent Framework
 
-Most AI-assisted development is ad hoc: you ask Claude to write something, review it yourself, and hope nothing slips through. This framework replaces that with a structured, repeatable process.
-
-It defines a team of 8 specialized agents, a 5-tier review system that scales depth with risk, and a loop-back protocol that enforces quality gates before any change advances. Everything is defined in markdown — no code to maintain, no tooling to integrate.
+A set of markdown-defined agents for Claude Code that add structured review chains, tiered escalation, and quality gates to your development workflow. No code to maintain — everything is in `CLAUDE.md` and `.claude/` files.
 
 > **Requires Claude Code.** This framework uses Claude Code's sub-agent system
 > (`.claude/agents/*.md` and `CLAUDE.md`). It does not work with other AI tools or IDEs.
 
-## The problem it solves
+## What it does
 
-When you ask Claude Code to implement something, a single context does everything: design, implementation, security review, documentation. That works for simple tasks. For anything with real complexity — external integrations, security-sensitive changes, shared code — a single pass is not enough. Blind spots compound.
-
-This framework separates those concerns into specialized agents with defined responsibilities, explicit handoff protocols, and mandatory review gates. A security reviewer is not also the implementer. A doc agent is not also the architect. The orchestrator (Claude Code itself) routes work through the correct chain based on the tier of the change.
+It splits the work that Claude Code normally does in a single context — design, implementation, review, documentation — into separate agents with defined roles. Each agent has a narrow scope, explicit constraints, and a handoff protocol. Review agents can block the chain with a FAIL verdict until issues are resolved.
 
 ## Quick start
 
@@ -107,9 +103,7 @@ If your project evolves significantly — new language, architecture pivot, majo
 
 ## Origin
 
-This framework was not designed upfront. It emerged through iterative, real-world development over several intensive days of building production software with Claude Code. Every agent role, every tier boundary, every loop-back rule was shaped by actual failures and fixes — not theory.
-
-The framework was validated on opsbox, a Python CLI tool for IT and security operations, where it ran hundreds of review cycles including full Tier 4 security chains with offensive and defensive coverage. What survived that process is what is here.
+This started as a personal setup for building opsbox, a Python CLI tool for IT and security operations. The agent roles, tier boundaries, and loop-back rules were shaped by what actually went wrong during development — not planned upfront. It worked well enough that I extracted it into a standalone framework.
 
 ## License
 
