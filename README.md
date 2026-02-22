@@ -113,3 +113,11 @@ The result is an agent infrastructure that works in practice — not because
 a committee designed it, but because it was pressure-tested through hundreds
 of review cycles including full Tier 4 security chains with offensive and
 defensive coverage.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+## Contact
+
+Questions, feedback, or want to contribute? Reach out at **hub3r7@pm.me**.
