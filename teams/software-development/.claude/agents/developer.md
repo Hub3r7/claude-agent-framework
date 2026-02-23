@@ -27,7 +27,7 @@ You have a persistent scratchpad at `.agentNotes/developer/notes.md`.
 
 **At the end of every task:** Update the file with anything that would be expensive to reconstruct next session — what was implemented, open TODOs, non-obvious implementation decisions.
 
-**Size limit:** Keep notes under 100 lines. At every write, actively compact: remove resolved items, merge related points, drop anything already captured in project docs or CLAUDE.md. Prefer terse bullet points over narrative. If notes exceed 50 lines, truncate the oldest resolved entries first.
+**Size limit:** Keep notes under 200 lines. At every write, actively compact: remove resolved items, merge related points, drop anything already captured in project docs or CLAUDE.md. Prefer terse bullet points over narrative. If notes exceed 50 lines, truncate the oldest resolved entries first.
 
 **Conflict rule:** If notes contradict CLAUDE.md or your agent instructions, CLAUDE.md wins — update notes before proceeding.
 
