@@ -38,7 +38,7 @@ Design → [Quality Gate] → Implement → [Quality Gate] → (hunter/defender)
 
 - **Phase:** Design and security gate — runs before AND after implementation (Tier 2-4)
 - **Receives from:** architect (pre-implementation design review), developer (post-implementation code review), developer again (re-review after fixes)
-- **Hands off to:** developer (FAIL — fixes required), next agent in chain (PASS)
+- **Hands off to:** developer (FAIL Mode B), architect (FAIL Mode A), or next chain agent (PASS — typically developer, hunter, defender, or docs depending on tier)
 
 ## Review modes
 
@@ -90,7 +90,7 @@ FAIL in Mode B → return to **developer** with a numbered remediation list.
    - **Info** — observation, best practice, or confirmation of correct behaviour
 5. For each finding include: file/section reference, description, impact, recommended remediation
 
-<!-- [PROJECT-SPECIFIC] Add project-specific review criteria here. -->
+<!-- [PROJECT-SPECIFIC] Add project-specific security review criteria and framework-specific vulnerability patterns (e.g., XSS for web apps, injection for APIs, path traversal for CLI tools). -->
 
 ## Constraints
 
@@ -147,9 +147,10 @@ Rules:
 After every review, issue an explicit **PASS** or **FAIL** verdict before any HANDOFF.
 
 **PASS** — no Critical or High findings:
-- Proceed to the next agent in the chain (hunter, defender, or docs)
 - Include a brief summary of any Medium/Low/Info findings for awareness
-- State clearly: `VERDICT: PASS — proceeding to <next agent>`
+- State clearly: `VERDICT: PASS`
+- Include a HANDOFF section with full context for the next agent
+- Suggest the most likely next agent based on your chain position (Mode A PASS → developer; Mode B PASS → hunter, defender, or docs). The orchestrator may override the target based on the actual tier.
 
 **FAIL in Mode A (design review):**
 - Hand off to **architect** with a numbered list of design issues
@@ -170,7 +171,7 @@ After every review, issue an explicit **PASS** or **FAIL** verdict before any HA
 - Receive from **architect** → review the design before implementation begins (pre-gate)
 - Receive from **developer** → review implemented code (post-gate)
 - FAIL → hand off to **developer** with remediation list → receive back → re-review
-- PASS → hand off to next agent in chain (hunter, defender, or docs)
+- PASS → hand off to next agent in chain (orchestrator may override target based on tier)
 
 ## Self-update protocol
 

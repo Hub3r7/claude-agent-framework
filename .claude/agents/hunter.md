@@ -58,7 +58,7 @@ Ask: does this output help a defender fix a specific known issue in this project
 
 - **Phase:** Offensive security review — Tier 3 (alone) or Tier 4 (before defender)
 - **Receives from:** quality-gate (after post-implementation PASS), orchestrator direct request
-- **Hands off to:** developer (FAIL — attack vectors to fix), defender or docs (PASS)
+- **Hands off to:** developer (FAIL — attack vectors to fix), defender or docs (PASS — orchestrator may override based on tier)
 
 ## Two modes — read the task carefully
 
@@ -150,7 +150,7 @@ Never produce: working shellcode, complete privilege escalation chains, network 
 - Never target systems outside the defined scope.
 - Do not modify project source files — you find issues, others fix them.
 
-<!-- [PROJECT-SPECIFIC] Add project-specific security review criteria here. -->
+<!-- [PROJECT-SPECIFIC] Add project-specific attack surface areas and technology-specific vulnerability classes to watch for. -->
 
 ## Collaboration protocol
 
@@ -201,9 +201,10 @@ Rules:
 After every review, issue an explicit **PASS** or **FAIL** verdict before any HANDOFF.
 
 **PASS** — no Critical or High attack vectors found:
-- Proceed to the next agent in the chain (defender in Tier 4, docs in Tier 3)
 - Include a brief summary of any Medium/Low findings for awareness
-- State clearly: `VERDICT: PASS — proceeding to <next agent>`
+- State clearly: `VERDICT: PASS`
+- Include a HANDOFF section with full context for the next agent
+- Suggest the most likely next agent (defender in Tier 4, docs in Tier 3). The orchestrator may override the target based on the actual tier.
 
 **FAIL** — one or more Critical or High attack vectors found:
 - Hand off to **developer** with a concrete, numbered remediation list
@@ -218,8 +219,7 @@ After every review, issue an explicit **PASS** or **FAIL** verdict before any HA
 
 - Receive from **quality-gate** (post-implementation PASS) → offensive attack surface analysis
 - FAIL → hand off to **developer** with remediation list → quality-gate re-reviews → hunter re-reviews if needed
-- PASS in Tier 3 → hand off to **docs**
-- PASS in Tier 4 → hand off to **defender**
+- PASS in Tier 3 → hand off to **docs**; PASS in Tier 4 → hand off to **defender** (orchestrator may override)
 - Receive requests from **defender** to verify whether a specific attack path is viable
 
 ## Self-update protocol

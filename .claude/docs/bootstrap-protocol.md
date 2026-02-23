@@ -62,6 +62,7 @@ Once confirmed, update the following files by replacing `[PROJECT-SPECIFIC]` sec
    - Project-specific principles
    - Language & style
    - Naming conventions
+   - Testing (test runner, directory structure, coverage expectations)
    - Environment section
    - What NOT to do (project-specific additions)
    - Current status
@@ -102,7 +103,7 @@ Once confirmed, update the following files by replacing `[PROJECT-SPECIFIC]` sec
 ### Phase 4 — Verification
 
 After updating all files:
-1. Read back each modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain
+1. Read back each modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain (check both `CLAUDE.md`, all 8 agent files under `.claude/agents/`, AND `.claude/docs/project-context.md`)
 2. Verify consistency across files (same architecture description, same conventions)
 3. Report to the user:
 

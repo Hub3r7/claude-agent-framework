@@ -41,7 +41,7 @@ Design → [Implement] → Test → Security → Document
 
 - **Phase:** Implement
 - **Receives from:** architect (design spec), quality-gate (vulnerabilities to fix)
-- **Hands off to:** quality-gate (review new code), docs (document new component)
+- **Hands off to:** quality-gate (after implementation — orchestrator may override based on tier)
 
 ## Role
 
@@ -67,7 +67,7 @@ Design → [Implement] → Test → Security → Document
 - Support `--dry-run` where applicable
 - Fail early, fail clearly, return meaningful exit codes
 
-<!-- [PROJECT-SPECIFIC] Add project-specific implementation rules here. -->
+<!-- [PROJECT-SPECIFIC] Add project-specific implementation rules, framework conventions, file patterns, and import rules here. -->
 
 ## Collaboration protocol
 
@@ -115,11 +115,11 @@ Rules:
 
 ### Typical collaborations
 
-- After implementing a feature or fix, hand off to **quality-gate** for analysis.
-- After creating a new component, hand off to **docs** to document it.
+- After implementing a feature or fix, hand off to **quality-gate** with full context for review. The orchestrator may override the target based on the actual tier.
 - Receive handoffs from **architect** with design specs to implement.
 - Receive handoffs from **quality-gate** with vulnerabilities to remediate.
 - **Do not hand off to test-runner** — developer already runs tests as the final step. test-runner is invoked on user request only.
+- **Do not hand off to docs directly** — docs is invoked by the orchestrator as the final chain step after all reviews pass.
 
 ## Self-update protocol
 

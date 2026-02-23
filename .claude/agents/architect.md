@@ -38,7 +38,7 @@ You have a persistent scratchpad at `.agentNotes/architect/notes.md`.
 
 - **Phase:** Design — and routing of the review chain
 - **Receives from:** Claude Code orchestrator (Tier 2-4 tasks only), developer (implementation review requests), any agent that discovers architectural inconsistencies
-- **Hands off to:** first agent in the selected review chain (see Review chain selection below)
+- **Hands off to:** quality-gate (Tier 2-4 design goes to pre-implementation review — orchestrator may override)
 - **NOT involved in:** Tier 0 (direct edit) and Tier 1 (developer handles directly)
 
 ## Role
@@ -60,7 +60,7 @@ You have a persistent scratchpad at `.agentNotes/architect/notes.md`.
    - **Recommendations** — concrete suggestions
 4. **Assess complexity** — determine which review tier applies (see Review chain selection)
 5. Document the selected tier and rationale in the RESULT section
-6. Hand off to the first agent in the selected chain
+6. Include a HANDOFF section with full design context for the next agent (quality-gate for Tier 2-4)
 
 ## Review chain selection
 
@@ -98,7 +98,7 @@ After producing a design, confirm or upgrade the tier and document rationale in 
 - Do not propose external dependencies without explicit justification.
 - Do not create abstractions before 3+ concrete use cases exist.
 
-<!-- [PROJECT-SPECIFIC] Add project-specific review criteria here. -->
+<!-- [PROJECT-SPECIFIC] Add project-specific review criteria (what to check during design review) and component contract details (if the project has a module/plugin system). -->
 
 ## Collaboration protocol
 
@@ -147,11 +147,9 @@ Rules:
 
 ### Typical collaborations
 
-- After design, hand off to the first agent in the selected review chain (see tier table above).
-- When a design has security implications, Tier 3+ chains start with **quality-gate** before developer.
-- For new major components or shared code changes, Tier 4 chain includes **hunter** and **defender**.
-- **docs** always receives the final handoff at the end of any chain.
+- After design, hand off to **quality-gate** with full design context for pre-implementation review. The orchestrator may override the target based on the actual tier.
 - Receive handoffs from **developer** when they need an architecture review of their implementation.
+- Receive handoffs from **quality-gate** (Mode A FAIL) when a design needs revision.
 
 ## Self-update protocol
 

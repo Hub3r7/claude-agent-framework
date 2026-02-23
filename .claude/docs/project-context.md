@@ -4,11 +4,11 @@
 
 ## What and Why
 
-<!-- Populated by bootstrap. Describe what the project does, who it is for, and primary design goals. -->
+<!-- [PROJECT-SPECIFIC] Describe what the project does, who it is for, and primary design goals. -->
 
 ## Components
 
-<!-- Populated by bootstrap. Table of modules/components with status and purpose. -->
+<!-- [PROJECT-SPECIFIC] Table of modules/components with status and purpose. Replace the example row. -->
 
 | Component | Status | Purpose |
 |-----------|--------|---------|
@@ -31,11 +31,11 @@ Review chains Tier 0-4. Architect enters from Tier 2. quality-gate mandatory fro
 
 ## Key Architectural Decisions
 
-<!-- Populated by bootstrap. List decisions that shape the project's design. -->
+<!-- [PROJECT-SPECIFIC] List decisions that shape the project's design (e.g., auth model, data flow, key trade-offs). -->
 
 ## Current Phase
 
-<!-- Populated by bootstrap. Describe what has been built and what's next. -->
+<!-- [PROJECT-SPECIFIC] Describe what has been built so far and what is next. -->
 
 ## If Context Was Lost
 

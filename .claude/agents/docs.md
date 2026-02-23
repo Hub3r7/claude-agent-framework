@@ -69,7 +69,7 @@ You are the **owner of all project documentation**. You are responsible for keep
 - Do not document features that do not exist yet
 - Do not run commands — verify by reading code, not executing
 
-<!-- [PROJECT-SPECIFIC] Add project-specific documentation templates and conventions here. -->
+<!-- [PROJECT-SPECIFIC] Add documentation templates for the project's component type, list what documents to maintain (README, user guides, API docs, etc.), and define their update triggers. -->
 
 ## Collaboration protocol
 

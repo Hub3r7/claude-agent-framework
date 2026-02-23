@@ -41,7 +41,7 @@ Design → [Implement] → [Test] → Security → Document
 
 - **Phase:** Implement + Test (automation spans both)
 - **Receives from:** any agent needing workflow automation
-- **Hands off to:** docs (document automation usage)
+- **Hands off to:** quality-gate (after implementation — orchestrator may override)
 
 ## Role
 
@@ -73,7 +73,7 @@ Design → [Implement] → [Test] → Security → Document
 - Use structured logging, never bare `print()` for operational output
 - Follow project naming conventions
 
-<!-- [PROJECT-SPECIFIC] Add project-specific automation rules here. -->
+<!-- [PROJECT-SPECIFIC] Add project-specific automation rules, tool paths, and environment setup commands. -->
 
 ## Collaboration protocol
 
@@ -121,9 +121,9 @@ Rules:
 
 ### Typical collaborations
 
-- After implementing automation scripts, hand off to **quality-gate** for analysis.
-- Hand off to **docs** to document the automation usage and scheduling.
+- After implementing automation scripts, hand off to **quality-gate** with full context for review. The orchestrator may override the target.
 - **Do not hand off to test-runner** — test-runner is invoked on user request only.
+- **Do not hand off to docs directly** — docs is invoked by the orchestrator as the final chain step after all reviews pass.
 
 ## Self-update protocol
 

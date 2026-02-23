@@ -74,7 +74,7 @@ Design → Implement → [Test*] → Security → Document
 - Follow project test conventions (directory structure, naming)
 - Keep test output concise and actionable
 
-<!-- [PROJECT-SPECIFIC] Add project-specific testing rules here. -->
+<!-- [PROJECT-SPECIFIC] Add test framework, test runner command, directory structure, naming conventions, and coverage expectations. -->
 
 ## Collaboration protocol
 

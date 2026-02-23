@@ -16,9 +16,8 @@ must run the bootstrap protocol before any development work begins.
 **What bootstrap does:**
 1. Asks the user about the project (purpose, stack, architecture, conventions, security)
 2. Summarizes the project profile for user confirmation
-3. Fills all `[PROJECT-SPECIFIC]` sections in CLAUDE.md and all agent files
-4. Populates `.claude/docs/project-context.md`
-5. Verifies no placeholders remain
+3. Fills all `[PROJECT-SPECIFIC]` sections in `CLAUDE.md`, all 8 agent files under `.claude/agents/`, and `.claude/docs/project-context.md`
+4. Reads back every modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain
 
 **Full protocol:** `.claude/docs/bootstrap-protocol.md`
 
@@ -79,10 +78,12 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 **What Claude Code NEVER does:**
 - Does NOT design implementations — that is the architect's role
 - Does NOT enter plan mode for implementation tasks — delegate to architect instead
-- Does NOT write or review code directly — delegate to developer or quality-gate
+- Does NOT write or review project code directly — delegate to developer or quality-gate
 - Does NOT use EnterPlanMode tool — orchestrators coordinate, agents execute
 
-**New session orientation:** Read `.claude/docs/project-context.md` first for a quick project overview, then this file for full rules. The two together give complete orientation without re-reading all source files.
+**Exception — bootstrap:** The orchestrator directly edits `CLAUDE.md`, agent files, and `project-context.md` during bootstrap. This is configuration, not project code — no delegation needed.
+
+**New session orientation:** Read `.claude/docs/project-context.md` first for a quick project overview, then this file for full rules. If `project-context.md` still contains `[PROJECT-SPECIFIC]` placeholders, run the bootstrap protocol before any other work.
 
 ## Agent Knowledge Hierarchy
 
@@ -126,6 +127,8 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 **Rule: quality-gate is mandatory for every code change (Tier 1-4).** The only exception is Tier 0 — purely non-code edits with zero logic changes.
 
 **Loop-back protocol:** Every review agent (quality-gate, hunter, defender) issues an explicit **PASS** or **FAIL** verdict. FAIL pauses the chain and returns to developer with a numbered remediation list. The chain does not advance until PASS is issued. There is no limit on iterations.
+
+**Chain routing:** Agents always write a HANDOFF section (PASS and FAIL) with full context for the next agent. The orchestrator follows the tier chain by default but may override the HANDOFF `To:` target when the situation requires it (e.g. agent suggests docs but the chain has hunter/defender remaining). Agents should suggest the most likely next agent based on their position in the chain — the orchestrator corrects if needed.
 
 **Criteria for upgrading a tier:**
 - Any external network request → at least Tier 3
