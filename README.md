@@ -1,109 +1,120 @@
 # Claude Agent Framework
 
-A set of markdown-defined agents for Claude Code that add structured review chains, tiered escalation, and quality gates to your development workflow. No code to maintain — everything is in `CLAUDE.md` and `.claude/` files.
+A collection of markdown-defined agent teams for Claude Code. Each team adds structured review chains, tiered escalation, and quality gates to a specific workflow domain. No code to maintain — everything is in `CLAUDE.md` and `.claude/` files.
 
 > **Requires Claude Code.** This framework uses Claude Code's sub-agent system
 > (`.claude/agents/*.md` and `CLAUDE.md`). It does not work with other AI tools or IDEs.
 
-## What it does
+## Teams
 
-It splits the work that Claude Code normally does in a single context — design, implementation, review, documentation — into separate agents with defined roles. Each agent has a narrow scope, explicit constraints, and a handoff protocol. Review agents can block the chain with a FAIL verdict until issues are resolved.
+| Team | Domain | Agents | Use case |
+|------|--------|--------|----------|
+| [software-development](teams/software-development/) | Software engineering | architect, developer, quality-gate, hunter, defender, test-runner, ops-automation, docs | Building and maintaining software projects |
+| [devops-sre](teams/devops-sre/) | Infrastructure & operations | architect, builder, reviewer, monitor, incident, security, docs | IaC, deployment, monitoring, incident response |
+| [data-engineering](teams/data-engineering/) | Data pipelines & analytics | architect, builder, quality, analyst, security, optimizer, docs | ETL/ELT, data quality, pipeline development |
+| [security-operations](teams/security-operations/) | SOC & threat response | triager, analyst, hunter, responder, forensic, compliance, docs | Threat detection, incident response, compliance |
+| [restaurant-cost-optimization](teams/restaurant-cost-optimization/) | Restaurant management | analyst, sourcing, menu-engineer, waste, operations, quality-gate, docs | Food cost, labor, waste, menu optimization |
+| [content-marketing](teams/content-marketing/) | Content & editorial | strategist, writer, editor, seo, reviewer, publisher, docs | Blog, social media, newsletters, campaigns |
+| [research-analysis](teams/research-analysis/) | Research & synthesis | planner, researcher, analyst, critic, visualizer, docs | Literature review, data analysis, reports |
 
 ## Quick start
 
-1. Download or copy these into your project root:
-   - `CLAUDE.md` — project rules and orchestrator instructions
-   - `.claude/agents/` — all 8 agent definitions
-   - `.claude/docs/` — bootstrap protocol and session orientation template
+1. **Pick a team** that matches your workflow domain.
 
-   You can do this manually from the [repository](https://github.com/Hub3r7/claude-agent-framework), or:
-   ```
-   # Download and extract into current directory
+2. **Copy the team files** into your project root:
+
+   ```bash
+   # Example: using the software-development team
+   TEAM=software-development
+
+   # Download and extract
    curl -sL https://github.com/Hub3r7/claude-agent-framework/archive/refs/heads/main.tar.gz \
-     | tar xz --strip-components=1 claude-agent-framework-main/CLAUDE.md claude-agent-framework-main/.claude
+     | tar xz --strip-components=3 \
+       "claude-agent-framework-main/teams/$TEAM/CLAUDE.md" \
+       "claude-agent-framework-main/teams/$TEAM/.claude"
+
+   # Or clone and copy manually
+   git clone https://github.com/Hub3r7/claude-agent-framework.git
+   cp claude-agent-framework/teams/$TEAM/CLAUDE.md .
+   cp -r claude-agent-framework/teams/$TEAM/.claude .
    ```
 
-2. Open Claude Code and say:
+3. **Open Claude Code** and say:
    ```
    bootstrap this project
    ```
 
-3. Answer the orchestrator's questions about your project. It will:
-   - Learn your stack, architecture, conventions, and security posture
+4. **Answer the orchestrator's questions.** It will:
+   - Learn about your project/organization/context
    - Fill all `[PROJECT-SPECIFIC]` sections in `CLAUDE.md` and all agent files
-   - Generate your `.claude/docs/project-context.md` for fast session orientation
+   - Generate `.claude/docs/project-context.md` for fast session orientation
 
-4. Start working normally. The orchestrator automatically:
-   - Classifies each change by tier (0-4)
-   - Routes to the correct agent chain
-   - Enforces PASS/FAIL quality gates with loop-back on failure
+5. **Start working.** The orchestrator automatically classifies tasks by tier, routes to the correct agent chain, and enforces quality gates.
 
-## Agent team
+## How it works
 
-| Agent | Role | Tier |
-|-------|------|------|
-| `architect` | Design + chain routing | 2-4 |
-| `developer` | Implementation | 1-4 |
-| `quality-gate` | Security + architecture review | 1-4 (all code changes) |
-| `hunter` | Offensive security / attack surface analysis | 3-4 |
-| `defender` | Defensive security / hardening | 3-4 |
-| `test-runner` | Test execution and coverage | On request |
-| `ops-automation` | Workflow automation | On request |
-| `docs` | Documentation (always last) | 0-4 |
+Every team follows the same core architecture:
 
-## Dev cycle tiers
+**Tiered escalation** — Each task is classified by complexity (Tier 0-4). Simple changes get minimal review. Complex changes get the full agent chain. The depth of review matches the blast radius of the change.
 
-| Tier | Change type | Chain |
-|------|-------------|-------|
-| 0 | Typo, doc edit, config label | Direct edit → docs |
-| 1 | Bug fix, small tweak, no new files | developer → quality-gate → docs |
-| 2 | New feature, refactor | architect → quality-gate → developer → quality-gate → docs |
-| 3 | External I/O, integrations, new attack surface | + hunter OR defender |
-| 4 | New major component, security-critical, shared code | + hunter AND defender |
+**Quality gates with loop-back** — Review agents issue explicit PASS or FAIL verdicts. FAIL pauses the chain and returns work for fixes. The chain does not advance until PASS is issued. No limit on iterations.
 
-The tier system exists to avoid two failure modes: under-reviewing risky changes, and over-reviewing trivial ones. A typo fix does not need 7 agents. A new authentication module does.
+**HANDOFF protocol** — Every agent writes a structured handoff with context for the next agent. The orchestrator follows the tier chain by default but may override routing when needed.
 
-**Loop-back protocol:** Every review agent (quality-gate, hunter, defender) issues an explicit PASS or FAIL verdict. FAIL pauses the chain and returns to developer with a numbered remediation list. The chain does not advance until PASS is issued. There is no limit on iterations.
+**Bootstrap customization** — Generic `[PROJECT-SPECIFIC]` placeholders are replaced through a structured conversation, not a config file. Agents become specialists in your specific context.
 
-## Key design decisions
+**Agent notes** — Agents accumulate knowledge across sessions through `.agentNotes/`. Notes are subordinate to `CLAUDE.md` (never override rules) but provide working memory that makes agents more effective over time.
 
-**Why markdown instructions instead of programmatic enforcement?**
-Text instructions interpreted by an LLM cover edge cases that rigid code cannot anticipate. The model understands the intent behind a rule, not just its literal form. The PASS/FAIL loop-back protocol provides the reliability that pure instruction-following lacks on its own.
+## Team structure
 
-**Why a tiered system instead of always running all agents?**
-A Tier 4 chain costs 7 agent invocations. That is the right cost for a security-critical change to shared infrastructure. It is the wrong cost for a one-line bug fix. Tiering ensures the depth of review matches the blast radius of the change.
-
-**Why agent notes?**
-Agents accumulate project-specific knowledge across sessions through `.agentNotes/` — patterns they have seen, decisions they have made, gotchas they have encountered. Notes are subordinate to `CLAUDE.md` and agent instructions (never override authoritative rules), but they provide working memory that makes agents more effective over time.
-
-**Why a bootstrap protocol?**
-Generic agent instructions produce generic results. The bootstrap protocol replaces every `[PROJECT-SPECIFIC]` placeholder with real knowledge about your stack, architecture, and conventions — through a conversation, not a config file. The agents become specialists in your project, not generalists.
-
-## Structure
+Every team directory contains:
 
 ```
-CLAUDE.md                          → Project rules + orchestrator instructions
-.claude/agents/
-  architect.md                     → Design + chain routing
-  developer.md                     → Implementation
-  quality-gate.md                  → Security + architecture review
-  hunter.md                        → Offensive security
-  defender.md                      → Defensive security
-  docs.md                          → Documentation
-  ops-automation.md                → Workflow automation
-  test-runner.md                   → Test execution
-.claude/docs/
-  project-context.md               → Quick session orientation (template)
-  bootstrap-protocol.md            → Full bootstrap conversation protocol
+teams/<team-name>/
+  CLAUDE.md                          → Project rules + orchestrator instructions
+  .claude/
+    agents/
+      <agent-1>.md                   → Agent definition with role, constraints, protocols
+      <agent-2>.md
+      ...
+    docs/
+      bootstrap-protocol.md          → Bootstrap conversation protocol
+      project-context.md             → Session orientation template
 ```
+
+## Choosing a team
+
+Pick the team closest to your primary workflow:
+
+- **Building software?** → `software-development`
+- **Managing infrastructure?** → `devops-sre`
+- **Building data pipelines?** → `data-engineering`
+- **Running a SOC or security team?** → `security-operations`
+- **Optimizing restaurant costs?** → `restaurant-cost-optimization`
+- **Creating content?** → `content-marketing`
+- **Doing research?** → `research-analysis`
+
+Each team is **completely standalone**. You only need the files from one team — no shared dependencies, no cross-team imports.
 
 ## Re-bootstrap
 
-If your project evolves significantly — new language, architecture pivot, major new component area — say "re-bootstrap" and the orchestrator will update the project-specific sections while preserving what still applies.
+If your project evolves significantly, say "re-bootstrap" and the orchestrator will update the project-specific sections while preserving what still applies.
+
+## Building your own team
+
+Want a team for a domain not listed here? Use any existing team as a template:
+
+1. Copy a team directory
+2. Rename agents and adjust roles
+3. Adapt the tier system for your workflow
+4. Update the bootstrap protocol with relevant discovery questions
+5. Keep the core protocols: HANDOFF, PASS/FAIL, knowledge hierarchy, agent notes
+
+The framework is domain-agnostic — the protocols work for any structured workflow where multiple perspectives add value.
 
 ## Origin
 
-This started as a personal setup for building opsbox, a Python CLI tool for IT and security operations. The agent roles, tier boundaries, and loop-back rules were shaped by what actually went wrong during development — not planned upfront. It worked well enough that I extracted it into a standalone framework.
+This started as a personal setup for building [opsbox](https://github.com/Hub3r7/opsbox), a Python CLI tool for IT and security operations. The agent roles, tier boundaries, and loop-back rules were shaped by what actually went wrong during development — not planned upfront. It worked well enough that I extracted it into a standalone framework, then generalized it to non-software domains.
 
 ## License
 
