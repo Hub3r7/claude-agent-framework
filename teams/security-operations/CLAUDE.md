@@ -84,27 +84,16 @@ Claude Code is the main orchestrator of all agent chains. The user is the securi
 - The orchestrator NEVER injects project rules, conventions, or CLAUDE.md content into the agent prompt — agents self-load these from their own `.md` instructions (`## Before any task`).
 - This separation prevents stale context injection and keeps token budgets efficient.
 
+**Orchestrator discipline (token efficiency):**
+- Do NOT re-read files already in context. Use existing knowledge from earlier in the session.
+- Keep agent prompts minimal: task description + HANDOFF context only.
+
 **During chain execution:**
 - State which agent is being invoked and why before each invocation
 - Surface BLOCKED sections immediately — never proceed past them silently
 - After every agent completes, check output for `AGENT UPDATE RECOMMENDED` — if present, surface the recommendation to the user immediately before proceeding with the chain
 - Verify acceptance criteria from each agent before invoking the next
-- Summarise results after the full chain completes, including a metrics table:
-
-```
-| Agent        | Model  | Tokens  | Duration | Tools | Verdict | Est. Cost |
-|--------------|--------|---------|----------|-------|---------|-----------|
-| triager      | opus   |   21 307 |    26.3s |     9 | PASS    |   €0.18   |
-| analyst      | sonnet |    8 420 |    12.1s |     5 | PASS    |   €0.04   |
-| orchestrator | opus   | ~150 000 |       —  |    20 | —       |  ~€1.28   |
-| **Total**    |        | ~179 727 |    38.4s |    34 |         |**~€1.50** |
-```
-
-  **Agent rows:** `total_tokens`, `duration_ms` (as seconds), `tool_uses` from each agent's usage output.
-  **Orchestrator row:** estimate tokens as `tool_calls × 7500` (each turn sends full conversation history + extended thinking as output tokens). Duration is not available from within the session.
-  **Est. Cost (EUR):** blended rate per model (80% input / 20% output estimate), converted at $1 ≈ €0.95:
-  - Opus: €8.55/MTok — Sonnet: €5.13/MTok — Haiku: €1.71/MTok
-  Formula: `tokens / 1_000_000 × blended_rate`. Final row sums all costs. This is a rough estimate — actual costs depend on context length and thinking token usage.
+- Summarise results after the full chain completes, including a metrics table (template: `docs/chain-metrics.md`)
 
 **What Claude Code NEVER does:**
 - Does NOT execute containment actions without user approval
@@ -126,11 +115,7 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 3. .agentNotes/<agent>/notes.md         ← working memory, subordinate to all above
 ```
 
-**Rules:**
-- Every agent reads CLAUDE.md **before** reading its own notes.
-- If notes contradict CLAUDE.md or agent instructions, **CLAUDE.md wins** — the agent must update notes to reflect current rules before proceeding.
-- Notes never establish rules, never override conventions, and never substitute for proper documentation.
-- Notes are local only — never committed to git, never shared between agents.
+Every agent reads CLAUDE.md **before** reading its own notes. If notes contradict CLAUDE.md or agent instructions, CLAUDE.md wins. Notes are local only — never committed to git.
 
 ## Workflow 1 — Incident Response (Reactive)
 
@@ -144,13 +129,7 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 | 3 — High | Confirmed compromise, lateral movement suspected | triager → analyst → responder → forensic → docs |
 | 4 — Critical | Active breach, data exfiltration, critical systems affected | triager → analyst → hunter → responder → forensic → docs |
 
-**Escalation criteria:**
-- Single known-bad signature, no lateral movement → Tier 1
-- Unknown activity, single system → Tier 2
-- Confirmed malicious activity, multiple systems → Tier 3
-- Active data exfiltration, critical infrastructure, APT indicators → Tier 4
-
-**When in doubt, escalate.** The cost of over-investigating is lower than missing an active breach.
+**Escalation:** Confirmed malicious + multiple systems → Tier 3. Active exfiltration, critical infrastructure, or APT indicators → Tier 4. When in doubt, escalate.
 
 ## Workflow 2 — Proactive Security (Planned)
 
@@ -176,9 +155,9 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 | `compliance` | Policy audit, regulatory review, control verification | Proactive Tier 1-4 |
 | `docs` | Incident reports, postmortem, playbooks, detection docs | Always last |
 
-**Review agents with PASS/FAIL loop-back:** compliance (policy violations), analyst (evidence quality in proactive workflow)
+**Loop-back protocol:** Every review agent issues **PASS** or **FAIL**. FAIL pauses the chain and returns to the responsible agent with a numbered remediation list. No limit on iterations. Review agents: compliance (policy violations), analyst (evidence quality in proactive workflow).
 
-**Chain routing:** Agents always write a HANDOFF section with full context for the next agent. The orchestrator follows the workflow chain by default but may override the HANDOFF `To:` target when the situation requires it.
+**Chain routing:** Agents write a HANDOFF section with full context for the next agent. The orchestrator follows the workflow chain by default but may override.
 
 ## Evidence Handling
 

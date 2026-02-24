@@ -83,27 +83,16 @@ Claude Code is the main orchestrator of all agent chains. The user is the princi
 - The orchestrator NEVER injects project rules, conventions, or CLAUDE.md content into the agent prompt — agents self-load these from their own `.md` instructions (`## Before any task`).
 - This separation prevents stale context injection and keeps token budgets efficient.
 
+**Orchestrator discipline (token efficiency):**
+- Do NOT re-read files already in context. Use existing knowledge from earlier in the session.
+- Keep agent prompts minimal: task description + HANDOFF context only.
+
 **During chain execution:**
 - State which agent is being invoked and why before each invocation
 - Surface BLOCKED sections immediately — never proceed past them silently
 - After every agent completes, check output for `AGENT UPDATE RECOMMENDED` — if present, surface the recommendation to the user immediately before proceeding with the chain
 - Verify acceptance criteria from each agent before invoking the next
-- Summarise results after the full chain completes, including a metrics table:
-
-```
-| Agent        | Model  | Tokens  | Duration | Tools | Verdict | Est. Cost |
-|--------------|--------|---------|----------|-------|---------|-----------|
-| planner      | opus   |   21 307 |    26.3s |     9 | PASS    |   €0.18   |
-| researcher   | sonnet |    8 420 |    12.1s |     5 | PASS    |   €0.04   |
-| orchestrator | opus   | ~150 000 |       —  |    20 | —       |  ~€1.28   |
-| **Total**    |        | ~179 727 |    38.4s |    34 |         |**~€1.50** |
-```
-
-  **Agent rows:** `total_tokens`, `duration_ms` (as seconds), `tool_uses` from each agent's usage output.
-  **Orchestrator row:** estimate tokens as `tool_calls × 7500` (each turn sends full conversation history + extended thinking as output tokens). Duration is not available from within the session.
-  **Est. Cost (EUR):** blended rate per model (80% input / 20% output estimate), converted at $1 ≈ €0.95:
-  - Opus: €8.55/MTok — Sonnet: €5.13/MTok — Haiku: €1.71/MTok
-  Formula: `tokens / 1_000_000 × blended_rate`. Final row sums all costs. This is a rough estimate — actual costs depend on context length and thinking token usage.
+- Summarise results after the full chain completes, including a metrics table (template: `docs/chain-metrics.md`)
 
 **What Claude Code NEVER does:**
 - Does NOT design research methodology — that is the planner's role
@@ -125,11 +114,7 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 3. .agentNotes/<agent>/notes.md         <- working memory, subordinate to all above
 ```
 
-**Rules:**
-- Every agent reads CLAUDE.md **before** reading its own notes.
-- If notes contradict CLAUDE.md or agent instructions, **CLAUDE.md wins** — the agent must update notes to reflect current rules before proceeding.
-- Notes never establish rules, never override conventions, and never substitute for proper documentation.
-- Notes are local only — never committed to git, never shared between agents.
+Every agent reads CLAUDE.md **before** reading its own notes. If notes contradict CLAUDE.md or agent instructions, CLAUDE.md wins. Notes are local only — never committed to git.
 
 ## Research Cycle — Task-driven Review Chain
 
@@ -143,30 +128,11 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 | 3 — Extended | Multi-source analysis, cross-domain synthesis, complex methodology | planner → critic → researcher → analyst → critic → docs |
 | 4 — Full | Complete research project, comprehensive report, policy recommendation | planner → critic → researcher → analyst → critic → visualizer → docs |
 
-**Escalation logic:**
-- Tier 0 → 0 agents, direct edit
-- Tier 1 → 3 agents, no planning needed (update is self-evident)
-- Tier 2 → 5 agents, planner designs + critic gates before AND after research
-- Tier 3 → 6 agents, adds analyst for data analysis and synthesis
-- Tier 4 → 7 agents, full pipeline including visualizer for presentation materials
+**Loop-back protocol:** Every review agent issues **PASS** or **FAIL**. FAIL pauses the chain and returns to the responsible agent with a numbered remediation list. No limit on iterations.
 
-**Rule: critic is mandatory for every substantive research change (Tier 1-4).** The only exception is Tier 0 — purely cosmetic edits with zero content changes.
+**Chain routing:** Agents write a HANDOFF section with full context for the next agent. The orchestrator follows the tier chain by default but may override. FAIL returns to: planner (methodology), researcher (sources), analyst (analysis).
 
-**Loop-back protocol:** The critic issues an explicit **PASS** or **FAIL** verdict. FAIL pauses the chain and returns to the responsible agent (planner for methodology issues, researcher for source issues, analyst for analysis issues) with a numbered remediation list. The chain does not advance until PASS is issued. There is no limit on iterations.
-
-**Chain routing:** Agents always write a HANDOFF section (PASS and FAIL) with full context for the next agent. The orchestrator follows the tier chain by default but may override the HANDOFF `To:` target when the situation requires it (e.g. agent suggests docs but the chain has analyst/visualizer remaining). Agents should suggest the most likely next agent based on their position in the chain — the orchestrator corrects if needed.
-
-**Criteria for upgrading a tier:**
-- Multiple independent data sources requiring cross-referencing → at least Tier 3
-- Statistical analysis or quantitative reasoning → at least Tier 3
-- New research question or methodology change → at least Tier 2
-- Complete research deliverable or report → at least Tier 4
-- Policy recommendations or high-stakes conclusions → Tier 4
-- Visual deliverables (charts, infographics, presentations) → Tier 4
-- Adding a single well-understood source → Tier 1
-- Minor text correction with no analytical impact → Tier 0
-
-**When in doubt, upgrade the tier.** The cost of an extra review is lower than the cost of a flawed conclusion in the final report.
+**Tier upgrade rules:** Complete research deliverable, policy recommendations, or visual deliverables → Tier 4. Multiple data sources or statistical analysis → at least Tier 3. New research question or methodology change → at least Tier 2. When in doubt, upgrade.
 
 ## Agent Team
 

@@ -103,10 +103,17 @@ Update all files by replacing `[PROJECT-SPECIFIC]` sections:
 6. `.claude/agents/visualizer.md` — Visualization tools, style guide, output formats
 7. `.claude/agents/docs.md` — Report templates, citation style, documentation structure
 8. `.claude/docs/project-context.md` — All sections
+9. **`docs/project-rules.md`** — Create this file during bootstrap with project-specific implementation rules extracted from CLAUDE.md. Move detailed conventions (language & style, naming, testing, environment, what NOT to do) here. This keeps CLAUDE.md lean for the orchestrator while agents get full rules.
+10. **Agent self-load update** — After creating `docs/project-rules.md`, update every agent's `## Before any task` section to include:
+    ```
+    1. Read `CLAUDE.md` for project principles and chain rules.
+    2. Read `docs/project-rules.md` for implementation conventions.
+    ```
+    Agents that also need `docs/command-conventions.md` or equivalent should list it as item 3.
 
 ### Phase 5 — Verification
 
-Read back all files, verify no `[PROJECT-SPECIFIC]` placeholders remain, report completion.
+Read back all files (including `docs/project-rules.md`), verify no `[PROJECT-SPECIFIC]` placeholders remain, report completion.
 
 ## Bootstrap principles
 

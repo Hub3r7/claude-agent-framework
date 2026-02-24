@@ -88,27 +88,16 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 - The orchestrator NEVER injects project rules, conventions, or CLAUDE.md content into the agent prompt — agents self-load these from their own `.md` instructions (`## Before any task`).
 - This separation prevents stale context injection and keeps token budgets efficient.
 
+**Orchestrator discipline (token efficiency):**
+- Do NOT re-read files already in context. Use existing knowledge from earlier in the session.
+- Keep agent prompts minimal: task description + HANDOFF context only.
+
 **During chain execution:**
 - State which agent is being invoked and why before each invocation
 - Surface BLOCKED sections immediately — never proceed past them silently
 - After every agent completes, check output for `AGENT UPDATE RECOMMENDED` — if present, surface the recommendation to the user immediately before proceeding with the chain
 - Verify acceptance criteria from each agent before invoking the next
-- Summarise results after the full chain completes, including a metrics table:
-
-```
-| Agent        | Model  | Tokens  | Duration | Tools | Verdict | Est. Cost |
-|--------------|--------|---------|----------|-------|---------|-----------|
-| architect    | opus   |   21 307 |    26.3s |     9 | PASS    |   €0.18   |
-| quality-gate | sonnet |    8 420 |    12.1s |     5 | PASS    |   €0.04   |
-| orchestrator | opus   | ~150 000 |       —  |    20 | —       |  ~€1.28   |
-| **Total**    |        | ~179 727 |    38.4s |    34 |         |**~€1.50** |
-```
-
-  **Agent rows:** `total_tokens`, `duration_ms` (as seconds), `tool_uses` from each agent's usage output.
-  **Orchestrator row:** estimate tokens as `tool_calls × 7500` (each turn sends full conversation history + extended thinking as output tokens). Duration is not available from within the session.
-  **Est. Cost (EUR):** blended rate per model (80% input / 20% output estimate), converted at $1 ≈ €0.95:
-  - Opus: €8.55/MTok — Sonnet: €5.13/MTok — Haiku: €1.71/MTok
-  Formula: `tokens / 1_000_000 × blended_rate`. Final row sums all costs. This is a rough estimate — actual costs depend on context length and thinking token usage.
+- Summarise results after the full chain completes, including a metrics table (template: `docs/chain-metrics.md`)
 
 **What Claude Code NEVER does:**
 - Does NOT design implementations — that is the architect's role
@@ -130,11 +119,7 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 3. .agentNotes/<agent>/notes.md         ← working memory, subordinate to all above
 ```
 
-**Rules:**
-- Every agent reads CLAUDE.md **before** reading its own notes.
-- If notes contradict CLAUDE.md or agent instructions, **CLAUDE.md wins** — the agent must update notes to reflect current rules before proceeding.
-- Notes never establish rules, never override conventions, and never substitute for proper documentation.
-- Notes are local only — never committed to git, never shared between agents.
+Every agent reads CLAUDE.md **before** reading its own notes. If notes contradict CLAUDE.md or agent instructions, CLAUDE.md wins. Notes are local only — never committed to git.
 
 ## Dev Cycle — Task-driven Review Chain
 
@@ -148,33 +133,11 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 | 3 — Extended | New feature with external I/O, integration, or security surface | architect → quality-gate → developer → quality-gate → hunter OR defender → docs |
 | 4 — Full | New major component, security-critical change, core/shared code change | architect → quality-gate → developer → quality-gate → hunter → defender → docs |
 
-**Escalation logic:**
-- Tier 0 → 0 agents, direct edit
-- Tier 1 → 3 agents, no design needed (fix is self-evident)
-- Tier 2 → 5 agents, architect designs + quality-gate gates before AND after implementation
-- Tier 3 → 6 agents, adds hunter (external I/O, input attack surface) OR defender (artifacts, data integrity)
-- Tier 4 → 7 agents, full offensive + defensive coverage, quality-gate before AND after
+**Loop-back protocol:** Every review agent issues **PASS** or **FAIL**. FAIL pauses the chain and returns to the developer with a numbered remediation list. No limit on iterations.
 
-**Tier 3 routing — hunter vs defender:**
-- hunter → new external-facing functionality, new input parsers, API integrations, network operations
-- defender → new data persistence, logging, audit trails, file operations with integrity requirements
+**Chain routing:** Agents write a HANDOFF section with full context for the next agent. The orchestrator follows the tier chain by default but may override. Tier 3: hunter (external I/O, input parsers, network) vs defender (data persistence, audit trails, file integrity).
 
-**Rule: quality-gate is mandatory for every code change (Tier 1-4).** The only exception is Tier 0 — purely non-code edits with zero logic changes.
-
-**Loop-back protocol:** Every review agent (quality-gate, hunter, defender) issues an explicit **PASS** or **FAIL** verdict. FAIL pauses the chain and returns to developer with a numbered remediation list. The chain does not advance until PASS is issued. There is no limit on iterations.
-
-**Chain routing:** Agents always write a HANDOFF section (PASS and FAIL) with full context for the next agent. The orchestrator follows the tier chain by default but may override the HANDOFF `To:` target when the situation requires it (e.g. agent suggests docs but the chain has hunter/defender remaining). Agents should suggest the most likely next agent based on their position in the chain — the orchestrator corrects if needed.
-
-**Criteria for upgrading a tier:**
-- Any external network request → at least Tier 3
-- Any operation that writes persistent artifacts → at least Tier 3
-- New major component or module → at least Tier 4
-- Changes to shared/core code → at least Tier 3
-- Security-sensitive operations (auth, crypto, input validation) → Tier 4
-- Adds new files → at least Tier 2 (cannot be Tier 1)
-- Simple read-only or text change with no new files → Tier 1
-
-**When in doubt, upgrade the tier.** The cost of an extra review is lower than the cost of a bug in production.
+**Tier upgrade rules:** New major component or security-sensitive operations (auth, crypto) → Tier 4. External network requests, persistent artifacts, or shared/core code changes → at least Tier 3. New files → at least Tier 2. When in doubt, upgrade.
 
 ## Agent Team
 

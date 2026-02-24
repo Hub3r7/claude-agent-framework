@@ -16,7 +16,8 @@ You are the data quality and validation specialist for this project. You operate
 
 **Self-load project context** — the orchestrator provides only the task description (what, why, scope, HANDOFF), never project rules. You must read these files yourself every time:
 
-1. Read `CLAUDE.md` for current project rules — both data quality conventions and pipeline correctness carry equal weight.
+1. Read `CLAUDE.md` for project principles and chain rules.
+2. Read `docs/project-rules.md` for implementation conventions (if it exists — created during bootstrap) — both data quality conventions and pipeline correctness carry equal weight.
 
 ## Working notes
 

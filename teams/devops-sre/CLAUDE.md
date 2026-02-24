@@ -89,27 +89,16 @@ Claude Code is the main orchestrator of all agent chains. The user is the infras
 - The orchestrator NEVER injects project rules, conventions, or CLAUDE.md content into the agent prompt — agents self-load these from their own `.md` instructions (`## Before any task`).
 - This separation prevents stale context injection and keeps token budgets efficient.
 
+**Orchestrator discipline (token efficiency):**
+- Do NOT re-read files already in context. Use existing knowledge from earlier in the session.
+- Keep agent prompts minimal: task description + HANDOFF context only.
+
 **During chain execution:**
 - State which agent is being invoked and why before each invocation
 - Surface BLOCKED sections immediately — never proceed past them silently
 - After every agent completes, check output for `AGENT UPDATE RECOMMENDED` — if present, surface the recommendation to the user immediately before proceeding with the chain
 - Verify acceptance criteria from each agent before invoking the next
-- Summarise results after the full chain completes, including a metrics table:
-
-```
-| Agent        | Model  | Tokens  | Duration | Tools | Verdict | Est. Cost |
-|--------------|--------|---------|----------|-------|---------|-----------|
-| architect    | opus   |   21 307 |    26.3s |     9 | PASS    |   €0.18   |
-| reviewer     | sonnet |    8 420 |    12.1s |     5 | PASS    |   €0.04   |
-| orchestrator | opus   | ~150 000 |       —  |    20 | —       |  ~€1.28   |
-| **Total**    |        | ~179 727 |    38.4s |    34 |         |**~€1.50** |
-```
-
-  **Agent rows:** `total_tokens`, `duration_ms` (as seconds), `tool_uses` from each agent's usage output.
-  **Orchestrator row:** estimate tokens as `tool_calls × 7500` (each turn sends full conversation history + extended thinking as output tokens). Duration is not available from within the session.
-  **Est. Cost (EUR):** blended rate per model (80% input / 20% output estimate), converted at $1 ≈ €0.95:
-  - Opus: €8.55/MTok — Sonnet: €5.13/MTok — Haiku: €1.71/MTok
-  Formula: `tokens / 1_000_000 × blended_rate`. Final row sums all costs. This is a rough estimate — actual costs depend on context length and thinking token usage.
+- Summarise results after the full chain completes, including a metrics table (template: `docs/chain-metrics.md`)
 
 **What Claude Code NEVER does:**
 - Does NOT design infrastructure — that is the architect's role
@@ -132,11 +121,7 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 3. .agentNotes/<agent>/notes.md         <- working memory, subordinate to all above
 ```
 
-**Rules:**
-- Every agent reads CLAUDE.md **before** reading its own notes.
-- If notes contradict CLAUDE.md or agent instructions, **CLAUDE.md wins** — the agent must update notes to reflect current rules before proceeding.
-- Notes never establish rules, never override conventions, and never substitute for proper documentation.
-- Notes are local only — never committed to git, never shared between agents.
+Every agent reads CLAUDE.md **before** reading its own notes. If notes contradict CLAUDE.md or agent instructions, CLAUDE.md wins. Notes are local only — never committed to git.
 
 ## Dev Cycle — Task-driven Review Chain
 
@@ -150,35 +135,11 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 | 3 — Extended | New service deployment, new cloud resource, external integration | architect → reviewer → builder → reviewer → security OR monitor → docs |
 | 4 — Full | New infrastructure component, production environment change, security-critical | architect → reviewer → builder → reviewer → security → monitor → incident → docs |
 
-**Escalation logic:**
-- Tier 0 → 0 agents, direct edit
-- Tier 1 → 3 agents, no design needed (fix is self-evident)
-- Tier 2 → 5 agents, architect designs + reviewer gates before AND after implementation
-- Tier 3 → 6 agents, adds security (IAM, network, secrets) OR monitor (observability, SLOs) depending on task nature
-- Tier 4 → 8 agents, full security + observability + incident readiness coverage, reviewer before AND after
+**Loop-back protocol:** Every review agent issues **PASS** or **FAIL**. FAIL pauses the chain and returns to the builder with a numbered remediation list. No limit on iterations.
 
-**Tier 3 routing — security vs monitor:**
-- security → new cloud resources, IAM changes, network changes, secrets management, compliance requirements
-- monitor → new services requiring observability, SLO/SLI changes, alerting rule changes, dashboard updates
+**Chain routing:** Agents write a HANDOFF section with full context for the next agent. The orchestrator follows the tier chain by default but may override. Tier 3: security (IAM, network, secrets, compliance) vs monitor (observability, SLOs, alerting).
 
-**Rule: reviewer is mandatory for every code/IaC change (Tier 1-4).** The only exception is Tier 0 — purely non-code edits with zero logic changes.
-
-**Loop-back protocol:** Every review agent (reviewer, security, monitor) issues an explicit **PASS** or **FAIL** verdict. FAIL pauses the chain and returns to builder with a numbered remediation list. The chain does not advance until PASS is issued. There is no limit on iterations.
-
-**Chain routing:** Agents always write a HANDOFF section (PASS and FAIL) with full context for the next agent. The orchestrator follows the tier chain by default but may override the HANDOFF `To:` target when the situation requires it (e.g. agent suggests docs but the chain has security/monitor remaining). Agents should suggest the most likely next agent based on their position in the chain — the orchestrator corrects if needed.
-
-**Criteria for upgrading a tier:**
-- Any new cloud resource (VM, database, queue, bucket) → at least Tier 3
-- Any IAM or network security change → at least Tier 3 with security
-- Any new service requiring monitoring → at least Tier 3 with monitor
-- New infrastructure component or environment → at least Tier 4
-- Changes to shared modules or core IaC → at least Tier 3
-- Production environment changes → Tier 4
-- Security-sensitive operations (secrets, certificates, encryption) → Tier 4
-- Adds new IaC files → at least Tier 2 (cannot be Tier 1)
-- Simple config value or text change with no new files → Tier 1
-
-**When in doubt, upgrade the tier.** The cost of an extra review is lower than the cost of an outage in production.
+**Tier upgrade rules:** New infrastructure component, production environment changes, or security-sensitive operations → Tier 4. New cloud resource, IAM/network changes, or shared IaC modules → at least Tier 3. When in doubt, upgrade.
 
 **Incident agent:** The `incident` agent is special — it operates both as a chain participant (Tier 4 post-monitor for production changes) AND as an on-demand agent for real incidents. When a real incident occurs, the user invokes `incident` directly regardless of tier.
 

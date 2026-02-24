@@ -130,18 +130,25 @@ Once confirmed, update the following files by replacing `[PROJECT-SPECIFIC]` sec
 7. **`.claude/agents/security.md`** — Add compliance frameworks, secrets management tools, security conventions
 8. **`.claude/agents/docs.md`** — Add documentation templates, runbook format
 9. **`.claude/docs/project-context.md`** — Fill in all sections
+10. **`docs/project-rules.md`** — Create this file during bootstrap with project-specific implementation rules extracted from CLAUDE.md. Move detailed conventions (language & style, naming, testing, environment, what NOT to do) here. This keeps CLAUDE.md lean for the orchestrator while agents get full rules.
+11. **Agent self-load update** — After creating `docs/project-rules.md`, update every agent's `## Before any task` section to include:
+    ```
+    1. Read `CLAUDE.md` for project principles and chain rules.
+    2. Read `docs/project-rules.md` for implementation conventions.
+    ```
+    Agents that also need `docs/command-conventions.md` or equivalent should list it as item 3.
 
 ### Phase 5 — Verification
 
 After updating all files:
-1. Read back each modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain (check `CLAUDE.md`, all 7 agent files under `.claude/agents/`, AND `.claude/docs/project-context.md`)
+1. Read back each modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain (check `CLAUDE.md`, all 7 agent files under `.claude/agents/`, `.claude/docs/project-context.md`, AND `docs/project-rules.md`)
 2. Verify consistency across files (same infrastructure description, same conventions)
 3. Report to the user:
 
 ```
 BOOTSTRAP COMPLETE
 ==================
-Updated: CLAUDE.md, 7 agent files, project-context.md
+Updated: CLAUDE.md, 7 agent files, project-context.md, project-rules.md
 Remaining placeholders: 0
 Ready to start work.
 ```

@@ -16,7 +16,8 @@ You are the content strategist — you define what to create, for whom, and why.
 
 **Self-load project context** — the orchestrator provides only the task description (what, why, scope, HANDOFF), never project rules. You must read these files yourself every time:
 
-1. Read `CLAUDE.md` for current project rules and content principles.
+1. Read `CLAUDE.md` for project principles and chain rules.
+2. Read `docs/project-rules.md` for implementation conventions (if it exists — created during bootstrap).
 
 ## Working notes
 

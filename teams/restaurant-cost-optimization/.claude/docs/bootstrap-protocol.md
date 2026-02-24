@@ -117,11 +117,18 @@ Once confirmed, update the following files by replacing `[PROJECT-SPECIFIC]` sec
 7. **`.claude/agents/quality-gate.md`** — Add food quality standards, HACCP protocols, service standards
 8. **`.claude/agents/docs.md`** — Add report templates, action plan format
 9. **`.claude/docs/project-context.md`** — Fill in all sections
+10. **`docs/project-rules.md`** — Create this file during bootstrap with project-specific implementation rules extracted from CLAUDE.md. Move detailed conventions (language & style, naming, testing, environment, what NOT to do) here. This keeps CLAUDE.md lean for the orchestrator while agents get full rules.
+11. **Agent self-load update** — After creating `docs/project-rules.md`, update every agent's `## Before any task` section to include:
+    ```
+    1. Read `CLAUDE.md` for project principles and chain rules.
+    2. Read `docs/project-rules.md` for implementation conventions.
+    ```
+    Agents that also need `docs/command-conventions.md` or equivalent should list it as item 3.
 
 ### Phase 5 — Verification
 
 After updating all files:
-1. Read back each modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain
+1. Read back each modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain (including `docs/project-rules.md`)
 2. Verify consistency across files
 3. Report completion
 

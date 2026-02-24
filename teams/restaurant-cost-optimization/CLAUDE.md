@@ -85,27 +85,16 @@ Claude Code is the main orchestrator of all agent chains. The user is the restau
 - The orchestrator NEVER injects project rules, conventions, or CLAUDE.md content into the agent prompt — agents self-load these from their own `.md` instructions (`## Before any task`).
 - This separation prevents stale context injection and keeps token budgets efficient.
 
+**Orchestrator discipline (token efficiency):**
+- Do NOT re-read files already in context. Use existing knowledge from earlier in the session.
+- Keep agent prompts minimal: task description + HANDOFF context only.
+
 **During chain execution:**
 - State which agent is being invoked and why before each invocation
 - Surface BLOCKED sections immediately — never proceed past them silently
 - After every agent completes, check output for `AGENT UPDATE RECOMMENDED` — if present, surface the recommendation to the user immediately before proceeding with the chain
 - Verify acceptance criteria from each agent before invoking the next
-- Summarise results after the full chain completes, including a metrics table:
-
-```
-| Agent        | Model  | Tokens  | Duration | Tools | Verdict | Est. Cost |
-|--------------|--------|---------|----------|-------|---------|-----------|
-| analyst      | opus   |   21 307 |    26.3s |     9 | PASS    |   €0.18   |
-| quality-gate | sonnet |    8 420 |    12.1s |     5 | PASS    |   €0.04   |
-| orchestrator | opus   | ~150 000 |       —  |    20 | —       |  ~€1.28   |
-| **Total**    |        | ~179 727 |    38.4s |    34 |         |**~€1.50** |
-```
-
-  **Agent rows:** `total_tokens`, `duration_ms` (as seconds), `tool_uses` from each agent's usage output.
-  **Orchestrator row:** estimate tokens as `tool_calls × 7500` (each turn sends full conversation history + extended thinking as output tokens). Duration is not available from within the session.
-  **Est. Cost (EUR):** blended rate per model (80% input / 20% output estimate), converted at $1 ≈ €0.95:
-  - Opus: €8.55/MTok — Sonnet: €5.13/MTok — Haiku: €1.71/MTok
-  Formula: `tokens / 1_000_000 × blended_rate`. Final row sums all costs. This is a rough estimate — actual costs depend on context length and thinking token usage.
+- Summarise results after the full chain completes, including a metrics table (template: `docs/chain-metrics.md`)
 
 **What Claude Code NEVER does:**
 - Does NOT analyze data directly — that is the analyst's role
@@ -127,11 +116,7 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 3. .agentNotes/<agent>/notes.md         ← working memory, subordinate to all above
 ```
 
-**Rules:**
-- Every agent reads CLAUDE.md **before** reading its own notes.
-- If notes contradict CLAUDE.md or agent instructions, **CLAUDE.md wins** — the agent must update notes to reflect current rules before proceeding.
-- Notes never establish rules, never override conventions, and never substitute for proper documentation.
-- Notes are local only — never committed to git, never shared between agents.
+Every agent reads CLAUDE.md **before** reading its own notes. If notes contradict CLAUDE.md or agent instructions, CLAUDE.md wins. Notes are local only — never committed to git.
 
 ## Optimization Cycle — Task-driven Review Chain
 
@@ -145,35 +130,11 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 | 3 — Extended | Menu redesign, new supplier onboarding, labor schedule restructuring | analyst → quality-gate → menu-engineer OR sourcing OR operations → quality-gate → docs |
 | 4 — Full | Full cost structure overhaul, major menu revamp, multi-area optimization | analyst → quality-gate → menu-engineer → sourcing → waste → operations → quality-gate → docs |
 
-**Escalation logic:**
-- Tier 0 → 0 agents, direct edit
-- Tier 1 → 3 agents, no specialist needed (analysis is self-contained)
-- Tier 2 → 5 agents, analyst analyzes + quality-gate gates before AND after specialist action
-- Tier 3 → 6 agents, adds the relevant specialist for the specific optimization area
-- Tier 4 → 7+ agents, full multi-area optimization with all specialists
+**Loop-back protocol:** Every review agent issues **PASS** or **FAIL**. FAIL pauses the chain and returns to the relevant specialist with a numbered remediation list. No limit on iterations.
 
-**Tier 2-3 routing — which specialist:**
-- menu-engineer → pricing changes, menu item changes, contribution margin optimization, menu design
-- sourcing → supplier changes, ingredient substitutions, purchasing strategy, contract negotiation
-- waste → waste reduction, portioning changes, storage/prep optimization, shelf-life management
-- operations → labor scheduling, kitchen workflow, energy efficiency, equipment utilization
+**Chain routing:** Agents write a HANDOFF section with full context for the next agent. The orchestrator follows the tier chain by default but may override. Tier 2-3 specialist routing: menu-engineer (pricing, margins), sourcing (suppliers, substitutions), waste (portioning, shelf-life), operations (labor, workflow).
 
-**Rule: quality-gate is mandatory for every optimization recommendation (Tier 1-4).** The only exception is Tier 0 — purely cosmetic or documentation edits with zero operational impact.
-
-**Loop-back protocol:** Every review agent (quality-gate) issues an explicit **PASS** or **FAIL** verdict. FAIL pauses the chain and returns to the relevant specialist with a numbered remediation list. The chain does not advance until PASS is issued. There is no limit on iterations.
-
-**Chain routing:** Agents always write a HANDOFF section (PASS and FAIL) with full context for the next agent. The orchestrator follows the tier chain by default but may override the HANDOFF `To:` target when the situation requires it (e.g. agent suggests docs but the chain has more specialists remaining). Agents should suggest the most likely next agent based on their position in the chain — the orchestrator corrects if needed.
-
-**Criteria for upgrading a tier:**
-- Changes affecting guest-facing experience (menu, portions, presentation) → at least Tier 2
-- Supplier relationship changes → at least Tier 2
-- Changes affecting multiple cost areas simultaneously → at least Tier 3
-- Labor or scheduling restructuring → at least Tier 3
-- Full menu overhaul or cost structure redesign → Tier 4
-- Changes with food safety implications → at least Tier 3
-- Multi-location rollout → at least Tier 3
-
-**When in doubt, upgrade the tier.** The cost of an extra review is lower than the cost of a bad recommendation affecting operations.
+**Tier upgrade rules:** Full menu overhaul or cost structure redesign → Tier 4. Multi-area changes, labor restructuring, or food safety implications → at least Tier 3. Guest-facing or supplier relationship changes → at least Tier 2. When in doubt, upgrade.
 
 ## Agent Team
 
