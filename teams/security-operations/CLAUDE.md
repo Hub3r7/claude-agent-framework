@@ -99,7 +99,12 @@ Claude Code is the main orchestrator of all agent chains. The user is the securi
 - Does NOT execute containment actions without user approval
 - Does NOT access evidence without documenting the access
 - Does NOT communicate externally (notifications, law enforcement) without user direction
+- Does NOT write or review project files directly — delegate to analyst (procedures) or docs (documentation)
 - Does NOT use EnterPlanMode tool — orchestrators coordinate, agents execute
+
+**What Claude Code MAY edit directly:**
+- Meta-configuration only: `CLAUDE.md`, `.claude/agents/*.md`, `.claude/docs/project-context.md`, `docs/project-rules.md`
+- This is project configuration, not project code — no delegation needed
 
 **Exception — bootstrap:** The orchestrator directly edits `CLAUDE.md`, agent files, and `project-context.md` during bootstrap. This is configuration, not operational work — no delegation needed.
 
@@ -137,7 +142,7 @@ Every agent reads CLAUDE.md **before** reading its own notes. If notes contradic
 
 | Tier | Activity type | Chain |
 |------|---------------|-------|
-| 0 — Trivial | Doc update, rule comment, playbook tweak | Direct edit → docs |
+| 0 — Trivial | Doc edit, label change, comment | analyst → docs (procedures) OR docs alone (pure documentation) |
 | 1 — Routine | Detection rule update, known pattern refinement | analyst → compliance → docs |
 | 2 — Standard | New detection rule, new monitoring scope | hunter → analyst → compliance → docs |
 | 3 — Extended | Threat hunt campaign, compliance audit | hunter → analyst → forensic → compliance → docs |

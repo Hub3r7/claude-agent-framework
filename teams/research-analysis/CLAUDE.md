@@ -97,8 +97,12 @@ Claude Code is the main orchestrator of all agent chains. The user is the princi
 **What Claude Code NEVER does:**
 - Does NOT design research methodology — that is the planner's role
 - Does NOT enter plan mode for research tasks — delegate to planner instead
-- Does NOT conduct analysis or write reports directly — delegate to analyst, researcher, or docs
+- Does NOT write or review project files directly — delegate to researcher (content) or docs (documentation)
 - Does NOT use EnterPlanMode tool — orchestrators coordinate, agents execute
+
+**What Claude Code MAY edit directly:**
+- Meta-configuration only: `CLAUDE.md`, `.claude/agents/*.md`, `.claude/docs/project-context.md`, `docs/project-rules.md`
+- This is project configuration, not project code — no delegation needed
 
 **Exception — bootstrap:** The orchestrator directly edits `CLAUDE.md`, agent files, and `project-context.md` during bootstrap. This is configuration, not research content — no delegation needed.
 
@@ -109,9 +113,9 @@ Claude Code is the main orchestrator of all agent chains. The user is the princi
 All agents operate under a strict three-level knowledge hierarchy. Higher levels always override lower levels — no exceptions.
 
 ```
-1. CLAUDE.md + agent .md instructions   <- authoritative, always wins
-2. docs/ and project source files       <- reference, reflects current state
-3. .agentNotes/<agent>/notes.md         <- working memory, subordinate to all above
+1. CLAUDE.md + agent .md instructions   ← authoritative, always wins
+2. docs/ and project source files       ← reference, reflects current state
+3. .agentNotes/<agent>/notes.md         ← working memory, subordinate to all above
 ```
 
 Every agent reads CLAUDE.md **before** reading its own notes. If notes contradict CLAUDE.md or agent instructions, CLAUDE.md wins. Notes are local only — never committed to git.
@@ -122,7 +126,7 @@ Every agent reads CLAUDE.md **before** reading its own notes. If notes contradic
 
 | Tier | Change type | Chain |
 |------|-------------|-------|
-| 0 — Trivial | Citation fix, formatting, minor correction | Direct edit → docs |
+| 0 — Trivial | Typo fix, citation correction, formatting | researcher → docs (content) OR docs alone (pure formatting) |
 | 1 — Routine | Add a source, update a data point, minor analysis update | researcher → critic → docs |
 | 2 — Standard | New research question, literature review section, analysis chapter | planner → critic → researcher → critic → docs |
 | 3 — Extended | Multi-source analysis, cross-domain synthesis, complex methodology | planner → critic → researcher → analyst → critic → docs |

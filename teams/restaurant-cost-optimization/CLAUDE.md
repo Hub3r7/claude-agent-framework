@@ -99,8 +99,12 @@ Claude Code is the main orchestrator of all agent chains. The user is the restau
 **What Claude Code NEVER does:**
 - Does NOT analyze data directly — that is the analyst's role
 - Does NOT enter plan mode for analysis tasks — delegate to analyst instead
-- Does NOT produce recommendations directly — delegate to specialist agents
+- Does NOT write or review project files directly — delegate to analyst (data) or docs (documentation)
 - Does NOT use EnterPlanMode tool — orchestrators coordinate, agents execute
+
+**What Claude Code MAY edit directly:**
+- Meta-configuration only: `CLAUDE.md`, `.claude/agents/*.md`, `.claude/docs/project-context.md`, `docs/project-rules.md`
+- This is project configuration, not project code — no delegation needed
 
 **Exception — bootstrap:** The orchestrator directly edits `CLAUDE.md`, agent files, and `project-context.md` during bootstrap. This is configuration, not analysis — no delegation needed.
 
@@ -124,7 +128,7 @@ Every agent reads CLAUDE.md **before** reading its own notes. If notes contradic
 
 | Tier | Change type | Chain |
 |------|-------------|-------|
-| 0 — Trivial | Report format change, label update, minor doc edit | Direct edit → docs |
+| 0 — Trivial | Typo fix, label change, minor formatting | analyst → docs (data) OR docs alone (pure formatting) |
 | 1 — Routine | Single item price update, minor recipe adjustment, simple cost analysis | analyst → quality-gate → docs |
 | 2 — Standard | Menu item repricing, supplier switch for single category, waste reduction initiative | analyst → quality-gate → menu-engineer OR sourcing OR waste → quality-gate → docs |
 | 3 — Extended | Menu redesign, new supplier onboarding, labor schedule restructuring | analyst → quality-gate → menu-engineer OR sourcing OR operations → quality-gate → docs |

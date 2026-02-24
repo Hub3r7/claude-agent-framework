@@ -99,8 +99,12 @@ Claude Code is the main orchestrator of all agent chains. The user is the conten
 **What Claude Code NEVER does:**
 - Does NOT create content strategy — that is the strategist's role
 - Does NOT enter plan mode for content tasks — delegate to strategist instead
-- Does NOT write or review content directly — delegate to writer or editor
+- Does NOT write or review project files directly — delegate to writer (content) or docs (documentation)
 - Does NOT use EnterPlanMode tool — orchestrators coordinate, agents execute
+
+**What Claude Code MAY edit directly:**
+- Meta-configuration only: `CLAUDE.md`, `.claude/agents/*.md`, `.claude/docs/project-context.md`, `docs/project-rules.md`
+- This is project configuration, not project code — no delegation needed
 
 **Exception — bootstrap:** The orchestrator directly edits `CLAUDE.md`, agent files, and `project-context.md` during bootstrap. This is configuration, not content — no delegation needed.
 
@@ -111,9 +115,9 @@ Claude Code is the main orchestrator of all agent chains. The user is the conten
 All agents operate under a strict three-level knowledge hierarchy. Higher levels always override lower levels — no exceptions.
 
 ```
-1. CLAUDE.md + agent .md instructions   <- authoritative, always wins
-2. style-guide/ and project files       <- reference, reflects current state
-3. .agentNotes/<agent>/notes.md         <- working memory, subordinate to all above
+1. CLAUDE.md + agent .md instructions   ← authoritative, always wins
+2. style-guide/ and project files       ← reference, reflects current state
+3. .agentNotes/<agent>/notes.md         ← working memory, subordinate to all above
 ```
 
 Every agent reads CLAUDE.md **before** reading its own notes. If notes contradict CLAUDE.md or agent instructions, CLAUDE.md wins. Notes are local only — never committed to git.
@@ -124,7 +128,7 @@ Every agent reads CLAUDE.md **before** reading its own notes. If notes contradic
 
 | Tier | Change type | Chain |
 |------|-------------|-------|
-| 0 — Trivial | Typo fix, minor formatting, metadata update | Direct edit → docs |
+| 0 — Trivial | Typo fix, minor formatting, metadata update | writer → docs (content) OR docs alone (pure metadata) |
 | 1 — Routine | Minor content update, social media post, simple edit | writer → editor → docs |
 | 2 — Standard | New blog post, newsletter, content piece | strategist → editor → writer → editor → docs |
 | 3 — Extended | New content series, SEO-critical piece, thought leadership | strategist → editor → writer → editor → seo OR reviewer → docs |

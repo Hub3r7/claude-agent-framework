@@ -102,8 +102,12 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 **What Claude Code NEVER does:**
 - Does NOT design implementations — that is the architect's role
 - Does NOT enter plan mode for implementation tasks — delegate to architect instead
-- Does NOT write or review project code directly — delegate to developer or quality-gate
+- Does NOT write or review project files directly — delegate to developer (code) or docs (documentation)
 - Does NOT use EnterPlanMode tool — orchestrators coordinate, agents execute
+
+**What Claude Code MAY edit directly:**
+- Meta-configuration only: `CLAUDE.md`, `.claude/agents/*.md`, `.claude/docs/project-context.md`, `docs/project-rules.md`
+- This is project configuration, not project code — no delegation needed
 
 **Exception — bootstrap:** The orchestrator directly edits `CLAUDE.md`, agent files, and `project-context.md` during bootstrap. This is configuration, not project code — no delegation needed.
 
@@ -127,7 +131,7 @@ Every agent reads CLAUDE.md **before** reading its own notes. If notes contradic
 
 | Tier | Change type | Chain |
 |------|-------------|-------|
-| 0 — Trivial | Pure doc edit, typo fix, comment, config label | Direct edit → docs |
+| 0 — Trivial | Typo fix, comment, config label | developer → docs (code/config) OR docs alone (pure documentation) |
 | 1 — Routine | Bug fix, small tweak, config value — no new files, obvious fix | developer → quality-gate → docs |
 | 2 — Standard | New feature (contained scope), refactor of existing code | architect → quality-gate → developer → quality-gate → docs |
 | 3 — Extended | New feature with external I/O, integration, or security surface | architect → quality-gate → developer → quality-gate → hunter OR defender → docs |

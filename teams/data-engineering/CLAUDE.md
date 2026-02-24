@@ -102,8 +102,12 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 **What Claude Code NEVER does:**
 - Does NOT design pipelines or schemas — that is the architect's role
 - Does NOT enter plan mode for implementation tasks — delegate to architect instead
-- Does NOT write or review pipeline code directly — delegate to builder or quality
+- Does NOT write or review project files directly — delegate to builder (code) or docs (documentation)
 - Does NOT use EnterPlanMode tool — orchestrators coordinate, agents execute
+
+**What Claude Code MAY edit directly:**
+- Meta-configuration only: `CLAUDE.md`, `.claude/agents/*.md`, `.claude/docs/project-context.md`, `docs/project-rules.md`
+- This is project configuration, not project code — no delegation needed
 
 **Exception — bootstrap:** The orchestrator directly edits `CLAUDE.md`, agent files, and `project-context.md` during bootstrap. This is configuration, not project code — no delegation needed.
 
@@ -114,9 +118,9 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 All agents operate under a strict three-level knowledge hierarchy. Higher levels always override lower levels — no exceptions.
 
 ```
-1. CLAUDE.md + agent .md instructions   <-- authoritative, always wins
-2. docs/ and project source files       <-- reference, reflects current state
-3. .agentNotes/<agent>/notes.md         <-- working memory, subordinate to all above
+1. CLAUDE.md + agent .md instructions   ← authoritative, always wins
+2. docs/ and project source files       ← reference, reflects current state
+3. .agentNotes/<agent>/notes.md         ← working memory, subordinate to all above
 ```
 
 Every agent reads CLAUDE.md **before** reading its own notes. If notes contradict CLAUDE.md or agent instructions, CLAUDE.md wins. Notes are local only — never committed to git.
@@ -127,7 +131,7 @@ Every agent reads CLAUDE.md **before** reading its own notes. If notes contradic
 
 | Tier | Change type | Chain |
 |------|-------------|-------|
-| 0 — Trivial | Pure doc edit, typo fix, comment, config label | Direct edit → docs |
+| 0 — Trivial | Doc edit, comment, config label | builder → docs (code/config) OR docs alone (pure documentation) |
 | 1 — Routine | Minor transform fix, config change, no new data sources | builder → quality → docs |
 | 2 — Standard | New transformation, refactor existing pipeline, new validation rule | architect → quality → builder → quality → docs |
 | 3 — Extended | New data source integration, new output target, schema migration | architect → quality → builder → quality → security OR optimizer → docs |
