@@ -16,8 +16,9 @@ must run the bootstrap protocol before any development work begins.
 **What bootstrap does:**
 1. Asks the user about the project (SIEM, log sources, compliance frameworks, incident process, threat landscape)
 2. Summarizes the project profile for user confirmation
-3. Fills all `[PROJECT-SPECIFIC]` sections in `CLAUDE.md`, all 7 agent files under `.claude/agents/`, and `.claude/docs/project-context.md`
-4. Reads back every modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain
+3. Discusses model assignment (Opus/Sonnet/Haiku) for each agent to optimize cost vs capability
+4. Fills all `[PROJECT-SPECIFIC]` sections in `CLAUDE.md`, all 7 agent files under `.claude/agents/`, and `.claude/docs/project-context.md`
+5. Reads back every modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain
 
 **Full protocol:** `.claude/docs/bootstrap-protocol.md`
 

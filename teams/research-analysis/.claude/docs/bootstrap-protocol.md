@@ -42,7 +42,42 @@ Tools:          <analysis and visualization>
 
 Ask: "Does this capture your research context correctly?"
 
-### Phase 3 — Agent Specialization
+### Phase 3 — Model Assignment
+
+Discuss model selection for each agent with the user. The goal is to balance capability
+against cost — not every agent needs the most powerful (and expensive) model.
+
+**Available models (ordered by capability and cost):**
+- **Opus** — Most capable, highest cost. Best for complex reasoning, design, and implementation.
+- **Sonnet** — Strong balance of capability and cost. Good for review, analysis, and structured tasks.
+- **Haiku** — Fast and cheapest. Suitable for straightforward, well-defined tasks.
+
+**Default recommendation for this team:**
+
+```
+MODEL ASSIGNMENT (default)
+==========================
+planner         Opus      (research design, methodology requires deep reasoning)
+researcher      Opus      (source evaluation, evidence gathering)
+critic          Sonnet    (peer review with defined quality criteria)
+analyst         Opus      (data analysis, pattern recognition, synthesis)
+visualizer      Sonnet    (chart and diagram creation with defined specs)
+docs            Haiku     (reports and bibliography with clear templates)
+```
+
+**Present this table to the user and ask:**
+1. "Here is the recommended model assignment. Do you want to adjust any agent's model?"
+2. If the user wants to minimize costs: suggest downgrading researcher to Sonnet
+   (if sources are well-known) and analyst to Sonnet (if analysis is straightforward).
+3. If the user wants maximum quality: suggest upgrading critic to Opus for rigorous peer review.
+
+**After confirmation**, record the final assignment in `CLAUDE.md` under the Agent Team table
+and in each agent's `.md` file header.
+
+**Cost awareness rule:** The orchestrator should mention approximate relative cost:
+Opus ≈ 3× Sonnet ≈ 15× Haiku. This helps users make informed trade-offs.
+
+### Phase 4 — Agent Specialization
 
 Update all files by replacing `[PROJECT-SPECIFIC]` sections:
 
@@ -55,7 +90,7 @@ Update all files by replacing `[PROJECT-SPECIFIC]` sections:
 7. `.claude/agents/docs.md` — Report templates, citation style, documentation structure
 8. `.claude/docs/project-context.md` — All sections
 
-### Phase 4 — Verification
+### Phase 5 — Verification
 
 Read back all files, verify no `[PROJECT-SPECIFIC]` placeholders remain, report completion.
 

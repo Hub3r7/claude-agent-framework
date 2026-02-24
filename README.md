@@ -5,6 +5,10 @@ A collection of markdown-defined agent teams for Claude Code. Each team adds str
 > **Requires Claude Code.** This framework uses Claude Code's sub-agent system
 > (`.claude/agents/*.md` and `CLAUDE.md`). It does not work with other AI tools or IDEs.
 
+> **Cost warning.** This framework uses multi-agent chains where each agent is a separate Claude API call. Depending on your model assignment (Opus/Sonnet/Haiku per agent) and task tier, a single workflow can consume significant tokens. The framework was designed with **quality over cost** in mind — every tier adds review depth, not shortcuts. During bootstrap, the orchestrator will discuss model assignment with you to help optimize costs for your use case.
+
+> **Team maturity.** The `software-development` team has received the most attention and refinement so far. All other teams share the same core architecture and protocols but have not been tested in practice yet. They are structurally complete and ready to use, but expect to iterate on agent instructions as you work with them.
+
 ## Teams
 
 | Team | Domain | Agents | Use case |
@@ -24,28 +28,28 @@ A collection of markdown-defined agent teams for Claude Code. Each team adds str
 2. **Copy the team files** into your project root:
 
    ```bash
-   # Example: using the software-development team
-   TEAM=software-development
-
-   # Download and extract
-   curl -sL https://github.com/Hub3r7/claude-agent-framework/archive/refs/heads/main.tar.gz \
-     | tar xz --strip-components=3 \
-       "claude-agent-framework-main/teams/$TEAM/CLAUDE.md" \
-       "claude-agent-framework-main/teams/$TEAM/.claude"
-
-   # Or clone and copy manually
+   # Clone the framework
    git clone https://github.com/Hub3r7/claude-agent-framework.git
-   cp claude-agent-framework/teams/$TEAM/CLAUDE.md .
-   cp -r claude-agent-framework/teams/$TEAM/.claude .
+
+   # Copy team files to your project (replace TEAM with your choice)
+   TEAM=software-development
+   cp claude-agent-framework/teams/$TEAM/CLAUDE.md /path/to/your/project/
+   cp -r claude-agent-framework/teams/$TEAM/.claude /path/to/your/project/
    ```
 
-3. **Open Claude Code** and say:
+   You need three things in your project root:
+   - `CLAUDE.md` — orchestrator rules and project config
+   - `.claude/agents/` — agent definitions
+   - `.claude/docs/` — bootstrap protocol and project context template
+
+3. **Open Claude Code** in your project and say:
    ```
    bootstrap this project
    ```
 
 4. **Answer the orchestrator's questions.** It will:
    - Learn about your project/organization/context
+   - Discuss model assignment (Opus/Sonnet/Haiku) for each agent to optimize costs
    - Fill all `[PROJECT-SPECIFIC]` sections in `CLAUDE.md` and all agent files
    - Generate `.claude/docs/project-context.md` for fast session orientation
 

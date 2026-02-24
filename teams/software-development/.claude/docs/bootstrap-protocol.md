@@ -52,7 +52,44 @@ Principles:     <project-specific non-negotiables>
 
 Ask: "Does this capture the project correctly? Anything to add or change?"
 
-### Phase 3 — Agent Specialization
+### Phase 3 — Model Assignment
+
+Discuss model selection for each agent with the user. The goal is to balance capability
+against cost — not every agent needs the most powerful (and expensive) model.
+
+**Available models (ordered by capability and cost):**
+- **Opus** — Most capable, highest cost. Best for complex reasoning, design, and implementation.
+- **Sonnet** — Strong balance of capability and cost. Good for review, analysis, and structured tasks.
+- **Haiku** — Fast and cheapest. Suitable for straightforward, well-defined tasks.
+
+**Default recommendation for this team:**
+
+```
+MODEL ASSIGNMENT (default)
+==========================
+architect       Opus      (complex design decisions, tier selection)
+developer       Opus      (implementation requires deep understanding)
+quality-gate    Sonnet    (structured review with clear criteria)
+hunter          Sonnet    (security analysis with defined patterns)
+defender        Sonnet    (defensive review with defined patterns)
+test-runner     Haiku     (well-defined task: run tests, report results)
+ops-automation  Sonnet    (automation with moderate complexity)
+docs            Sonnet    (documentation with clear templates)
+```
+
+**Present this table to the user and ask:**
+1. "Here is the recommended model assignment. Do you want to adjust any agent's model?"
+2. If the user wants to minimize costs: suggest downgrading architect to Sonnet (if project
+   is straightforward) and developer to Sonnet (if changes are typically small).
+3. If the user wants maximum quality: suggest upgrading quality-gate and hunter to Opus.
+
+**After confirmation**, record the final assignment in `CLAUDE.md` under the Agent Team table
+and in each agent's `.md` file header.
+
+**Cost awareness rule:** The orchestrator should mention approximate relative cost:
+Opus ≈ 3× Sonnet ≈ 15× Haiku. This helps users make informed trade-offs.
+
+### Phase 4 — Agent Specialization
 
 Once confirmed, update the following files by replacing `[PROJECT-SPECIFIC]` sections:
 
@@ -100,7 +137,7 @@ Once confirmed, update the following files by replacing `[PROJECT-SPECIFIC]` sec
 
 10. **`.claude/docs/project-context.md`** — Fill in all sections.
 
-### Phase 4 — Verification
+### Phase 5 — Verification
 
 After updating all files:
 1. Read back each modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain (check both `CLAUDE.md`, all 8 agent files under `.claude/agents/`, AND `.claude/docs/project-context.md`)

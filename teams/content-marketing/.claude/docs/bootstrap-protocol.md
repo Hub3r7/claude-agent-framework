@@ -42,7 +42,43 @@ Compliance:     <regulatory requirements>
 
 Ask: "Does this capture your content operation correctly?"
 
-### Phase 3 — Agent Specialization
+### Phase 3 — Model Assignment
+
+Discuss model selection for each agent with the user. The goal is to balance capability
+against cost — not every agent needs the most powerful (and expensive) model.
+
+**Available models (ordered by capability and cost):**
+- **Opus** — Most capable, highest cost. Best for complex reasoning, design, and implementation.
+- **Sonnet** — Strong balance of capability and cost. Good for review, analysis, and structured tasks.
+- **Haiku** — Fast and cheapest. Suitable for straightforward, well-defined tasks.
+
+**Default recommendation for this team:**
+
+```
+MODEL ASSIGNMENT (default)
+==========================
+strategist      Opus      (content strategy requires creative reasoning)
+writer          Opus      (original content creation, brand voice)
+editor          Sonnet    (structured editorial review with style guide)
+seo             Sonnet    (SEO optimization with defined patterns)
+reviewer        Sonnet    (fact-checking and compliance verification)
+publisher       Haiku     (formatting and scheduling, well-defined tasks)
+docs            Haiku     (style guide updates, calendar, reports)
+```
+
+**Present this table to the user and ask:**
+1. "Here is the recommended model assignment. Do you want to adjust any agent's model?"
+2. If the user wants to minimize costs: suggest downgrading strategist to Sonnet
+   (if content types are well-established) and writer to Sonnet (for shorter-form content).
+3. If the user wants maximum quality: suggest upgrading editor to Opus for high-stakes content.
+
+**After confirmation**, record the final assignment in `CLAUDE.md` under the Agent Team table
+and in each agent's `.md` file header.
+
+**Cost awareness rule:** The orchestrator should mention approximate relative cost:
+Opus ≈ 3× Sonnet ≈ 15× Haiku. This helps users make informed trade-offs.
+
+### Phase 4 — Agent Specialization
 
 Update all files by replacing `[PROJECT-SPECIFIC]` sections:
 
@@ -56,7 +92,7 @@ Update all files by replacing `[PROJECT-SPECIFIC]` sections:
 8. `.claude/agents/docs.md` — Style guide location, calendar format, documentation structure
 9. `.claude/docs/project-context.md` — All sections
 
-### Phase 4 — Verification
+### Phase 5 — Verification
 
 Read back all files, verify no `[PROJECT-SPECIFIC]` placeholders remain, report completion.
 
