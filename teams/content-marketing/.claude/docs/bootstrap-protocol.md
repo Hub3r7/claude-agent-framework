@@ -1,5 +1,8 @@
 # Bootstrap Protocol — From Generic to Project-Specific
 
+**CRITICAL:** The orchestrator MUST execute every phase in sequence. This is a strict protocol,
+not a reference to consult loosely. Skipping phases or reordering produces unstable results.
+
 ## Purpose
 
 Replace all `[PROJECT-SPECIFIC]` placeholder sections with concrete, project-specific rules through a structured conversation.
@@ -10,7 +13,7 @@ Run bootstrap when `CLAUDE.md` still contains `[PROJECT-SPECIFIC]` placeholders 
 
 ## Bootstrap phases
 
-### Phase 1 — Content Operations Discovery
+### Phase 1 — Content Operations Discovery (orchestrator ↔ user)
 
 1. **Brand** — Name, industry, mission, values, positioning.
 2. **Audience** — Target personas, pain points, information needs, content consumption habits.
@@ -23,6 +26,17 @@ Run bootstrap when `CLAUDE.md` still contains `[PROJECT-SPECIFIC]` placeholders 
 9. **Compliance** — Regulated industry? Legal review needed? Disclosure requirements?
 
 Start with 1-3 and let the conversation flow naturally.
+
+### Phase 1b — Agent Consultation (optional)
+
+If the orchestrator judges that a specific agent's domain expertise would sharpen project
+understanding, it MAY invoke that agent with targeted questions.
+
+**Rules:**
+- This is NOT mandatory — only use when user answers leave gaps in a specific domain.
+- Not every agent needs to be consulted — only the ones relevant to the gap.
+- The agent provides domain-specific follow-up questions; the orchestrator relays them to the user.
+- The orchestrator remains the single point of contact with the user throughout.
 
 ### Phase 2 — Confirmation
 

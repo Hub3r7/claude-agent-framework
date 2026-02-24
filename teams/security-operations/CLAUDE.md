@@ -4,25 +4,32 @@
 > and it will customize all `[PROJECT-SPECIFIC]` sections automatically.
 > See `.claude/docs/bootstrap-protocol.md` for details, or just say "bootstrap this project".
 
-## Bootstrap
+## Bootstrap Protocol (MANDATORY)
 
-When this file still contains `[PROJECT-SPECIFIC]` placeholders, the orchestrator
-must run the bootstrap protocol before any development work begins.
+When this file contains `[PROJECT-SPECIFIC]` placeholders, the orchestrator MUST execute the full bootstrap sequence below before any work begins. This is a strict step-by-step protocol — not a reference to follow loosely.
 
-**Bootstrap trigger:** Any of these phrases from the user:
-- "bootstrap", "set up agents", "configure for this project", "start new project"
-- Or: the orchestrator detects unfilled `[PROJECT-SPECIFIC]` sections on first read
+**Bootstrap trigger:** The user says "bootstrap" / "set up agents" / "configure for this project", OR the orchestrator detects unfilled `[PROJECT-SPECIFIC]` sections on first read.
 
-**What bootstrap does:**
-1. Asks the user about the project (SIEM, log sources, compliance frameworks, incident process, threat landscape)
-2. Summarizes the project profile for user confirmation
-3. Discusses model assignment (Opus/Sonnet/Haiku) for each agent to optimize cost vs capability
-4. Fills all `[PROJECT-SPECIFIC]` sections in `CLAUDE.md`, all 7 agent files under `.claude/agents/`, and `.claude/docs/project-context.md`
-5. Reads back every modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain
+**Step 1 — Project Discovery (orchestrator ↔ user):**
+Ask the user about the project. Start with 1–3 topics and let the conversation flow:
+SIEM platform, log sources, compliance frameworks, incident process, threat landscape, tooling
 
-**Full protocol:** `.claude/docs/bootstrap-protocol.md`
+**Step 1b — Agent consultation (optional):**
+If the orchestrator judges that a specific agent's domain expertise would sharpen the project understanding, it MAY invoke that agent with targeted questions. This is not mandatory and not every agent needs to be consulted — only when user answers leave gaps in a specific domain.
 
-After bootstrap, this section can be removed or kept as a reference for re-bootstrap.
+**Step 2 — Confirmation:**
+Summarize as a structured PROJECT PROFILE and ask: "Does this capture the project correctly?"
+
+**Step 3 — Model Assignment:**
+Present the default model assignment table (Opus/Sonnet/Haiku per agent) with cost ratios (Opus ≈ 3× Sonnet ≈ 15× Haiku). Ask user to confirm or adjust.
+
+**Step 4 — Agent Specialization:**
+Fill ALL `[PROJECT-SPECIFIC]` sections in: `CLAUDE.md`, every agent `.md` under `.claude/agents/`, and `.claude/docs/project-context.md`.
+
+**Step 5 — Verification:**
+Read back every modified file. Confirm zero `[PROJECT-SPECIFIC]` placeholders remain. Report completion.
+
+**Detailed reference:** `.claude/docs/bootstrap-protocol.md`
 
 ## What is this project?
 
@@ -72,12 +79,32 @@ Claude Code is the main orchestrator of all agent chains. The user is the securi
 - Actions that access production systems or sensitive data
 - External communications (notifications, escalations)
 
+**Forming agent prompts (context boundary):**
+- The orchestrator provides **task context only**: what to do, why, scope, acceptance criteria, and HANDOFF from the previous agent in the chain.
+- The orchestrator NEVER injects project rules, conventions, or CLAUDE.md content into the agent prompt — agents self-load these from their own `.md` instructions (`## Before any task`).
+- This separation prevents stale context injection and keeps token budgets efficient.
+
 **During chain execution:**
 - State which agent is being invoked and why before each invocation
 - Surface BLOCKED sections immediately — never proceed past them silently
 - After every agent completes, check output for `AGENT UPDATE RECOMMENDED` — if present, surface the recommendation to the user immediately before proceeding with the chain
 - Verify acceptance criteria from each agent before invoking the next
-- Summarise results after the full chain completes
+- Summarise results after the full chain completes, including a metrics table:
+
+```
+| Agent        | Model  | Tokens  | Duration | Tools | Verdict | Est. Cost |
+|--------------|--------|---------|----------|-------|---------|-----------|
+| triager      | opus   |  21 307 |    26.3s |     9 | PASS    |    $0.19  |
+| analyst      | sonnet |   8 420 |    12.1s |     5 | PASS    |    $0.05  |
+| orchestrator | opus   | ~50 000 |       —  |    20 | —       |   ~$0.45  |
+| **Total**    |        |  ~79727 |    38.4s |    34 |         | **~$0.69**|
+```
+
+  **Agent rows:** `total_tokens`, `duration_ms` (as seconds), `tool_uses` from each agent's usage output.
+  **Orchestrator row:** estimate tokens as `tool_calls × 2500`, duration is not available from within the session.
+  **Est. Cost:** blended rate per model (80% input / 20% output estimate):
+  - Opus: $9.00/MTok — Sonnet: $5.40/MTok — Haiku: $1.80/MTok
+  Formula: `tokens / 1_000_000 × blended_rate`. Final row sums all costs.
 
 **What Claude Code NEVER does:**
 - Does NOT execute containment actions without user approval

@@ -17,7 +17,9 @@ You are the implementation specialist for this project.
 
 ## Before any task
 
-Read `CLAUDE.md` for current project rules and conventions.
+**Self-load project context** — the orchestrator provides only the task description (what, why, scope, HANDOFF), never project rules. You must read these files yourself every time:
+
+1. Read `CLAUDE.md` for current project rules and conventions.
 
 ## Working notes
 

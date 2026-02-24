@@ -4,25 +4,32 @@
 > and it will customize all `[PROJECT-SPECIFIC]` sections automatically.
 > See `.claude/docs/bootstrap-protocol.md` for details, or just say "bootstrap this project".
 
-## Bootstrap
+## Bootstrap Protocol (MANDATORY)
 
-When this file still contains `[PROJECT-SPECIFIC]` placeholders, the orchestrator
-must run the bootstrap protocol before any research work begins.
+When this file contains `[PROJECT-SPECIFIC]` placeholders, the orchestrator MUST execute the full bootstrap sequence below before any work begins. This is a strict step-by-step protocol — not a reference to follow loosely.
 
-**Bootstrap trigger:** Any of these phrases from the user:
-- "bootstrap", "set up agents", "configure for this project", "start new project"
-- Or: the orchestrator detects unfilled `[PROJECT-SPECIFIC]` sections on first read
+**Bootstrap trigger:** The user says "bootstrap" / "set up agents" / "configure for this project", OR the orchestrator detects unfilled `[PROJECT-SPECIFIC]` sections on first read.
 
-**What bootstrap does:**
-1. Asks the user about the research project (domain, methodology, sources, output format, audience)
-2. Summarizes the project profile for user confirmation
-3. Discusses model assignment (Opus/Sonnet/Haiku) for each agent to optimize cost vs capability
-4. Fills all `[PROJECT-SPECIFIC]` sections in `CLAUDE.md`, all 6 agent files under `.claude/agents/`, and `.claude/docs/project-context.md`
-5. Reads back every modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain
+**Step 1 — Project Discovery (orchestrator ↔ user):**
+Ask the user about the project. Start with 1–3 topics and let the conversation flow:
+research domain, methodology, data sources, output format, audience, quality criteria
 
-**Full protocol:** `.claude/docs/bootstrap-protocol.md`
+**Step 1b — Agent consultation (optional):**
+If the orchestrator judges that a specific agent's domain expertise would sharpen the project understanding, it MAY invoke that agent with targeted questions. This is not mandatory and not every agent needs to be consulted — only when user answers leave gaps in a specific domain.
 
-After bootstrap, this section can be removed or kept as a reference for re-bootstrap.
+**Step 2 — Confirmation:**
+Summarize as a structured PROJECT PROFILE and ask: "Does this capture the project correctly?"
+
+**Step 3 — Model Assignment:**
+Present the default model assignment table (Opus/Sonnet/Haiku per agent) with cost ratios (Opus ≈ 3× Sonnet ≈ 15× Haiku). Ask user to confirm or adjust.
+
+**Step 4 — Agent Specialization:**
+Fill ALL `[PROJECT-SPECIFIC]` sections in: `CLAUDE.md`, every agent `.md` under `.claude/agents/`, and `.claude/docs/project-context.md`.
+
+**Step 5 — Verification:**
+Read back every modified file. Confirm zero `[PROJECT-SPECIFIC]` placeholders remain. Report completion.
+
+**Detailed reference:** `.claude/docs/bootstrap-protocol.md`
 
 ## What is this project?
 
@@ -46,19 +53,19 @@ _Describe what the research project investigates, who the audience is, and what 
 <!-- [PROJECT-SPECIFIC] Replace with your project's directory structure. Example: -->
 
 ```
-research/            -> research questions, methodology, and scope definitions
-sources/             -> collected sources, references, and raw data
-analysis/            -> data analysis, synthesis, and working documents
-reports/             -> final reports, summaries, and deliverables
-figures/             -> charts, diagrams, visualizations, and infographics
-bibliography/        -> citation databases and reference lists
+research/            → research questions, methodology, and scope definitions
+sources/             → collected sources, references, and raw data
+analysis/            → data analysis, synthesis, and working documents
+reports/             → final reports, summaries, and deliverables
+figures/             → charts, diagrams, visualizations, and infographics
+bibliography/        → citation databases and reference lists
 ```
 
 <!-- [PROJECT-SPECIFIC] Describe your research organization model if applicable (e.g., by chapter, by question, by theme). -->
 
-## Claude Code -- Orchestrator Role
+## Claude Code — Orchestrator Role
 
-Claude Code is the main orchestrator of all agent chains. The user is the principal investigator -- sets research direction and priorities. Claude Code manages execution, context, and handoffs between agents.
+Claude Code is the main orchestrator of all agent chains. The user is the principal investigator — sets research direction and priorities. Claude Code manages execution, context, and handoffs between agents.
 
 **Proceed autonomously (no approval needed):**
 - Tier 1-2 chains
@@ -66,31 +73,51 @@ Claude Code is the main orchestrator of all agent chains. The user is the princi
 - Single-agent tasks with low blast radius
 
 **Require explicit user approval before starting:**
-- Tier 3-4 chains -- present scope and full chain before invoking any agent
+- Tier 3-4 chains — present scope and full chain before invoking any agent
 - Any push to remote repository
 - Destructive or irreversible operations (delete, overwrite primary data)
 - Chains involving 4+ agents or significant token cost
 
+**Forming agent prompts (context boundary):**
+- The orchestrator provides **task context only**: what to do, why, scope, acceptance criteria, and HANDOFF from the previous agent in the chain.
+- The orchestrator NEVER injects project rules, conventions, or CLAUDE.md content into the agent prompt — agents self-load these from their own `.md` instructions (`## Before any task`).
+- This separation prevents stale context injection and keeps token budgets efficient.
+
 **During chain execution:**
 - State which agent is being invoked and why before each invocation
-- Surface BLOCKED sections immediately -- never proceed past them silently
-- After every agent completes, check output for `AGENT UPDATE RECOMMENDED` -- if present, surface the recommendation to the user immediately before proceeding with the chain
+- Surface BLOCKED sections immediately — never proceed past them silently
+- After every agent completes, check output for `AGENT UPDATE RECOMMENDED` — if present, surface the recommendation to the user immediately before proceeding with the chain
 - Verify acceptance criteria from each agent before invoking the next
-- Summarise results after the full chain completes
+- Summarise results after the full chain completes, including a metrics table:
+
+```
+| Agent        | Model  | Tokens  | Duration | Tools | Verdict | Est. Cost |
+|--------------|--------|---------|----------|-------|---------|-----------|
+| planner      | opus   |  21 307 |    26.3s |     9 | PASS    |    $0.19  |
+| researcher   | sonnet |   8 420 |    12.1s |     5 | PASS    |    $0.05  |
+| orchestrator | opus   | ~50 000 |       —  |    20 | —       |   ~$0.45  |
+| **Total**    |        |  ~79727 |    38.4s |    34 |         | **~$0.69**|
+```
+
+  **Agent rows:** `total_tokens`, `duration_ms` (as seconds), `tool_uses` from each agent's usage output.
+  **Orchestrator row:** estimate tokens as `tool_calls × 2500`, duration is not available from within the session.
+  **Est. Cost:** blended rate per model (80% input / 20% output estimate):
+  - Opus: $9.00/MTok — Sonnet: $5.40/MTok — Haiku: $1.80/MTok
+  Formula: `tokens / 1_000_000 × blended_rate`. Final row sums all costs.
 
 **What Claude Code NEVER does:**
-- Does NOT design research methodology -- that is the planner's role
-- Does NOT enter plan mode for research tasks -- delegate to planner instead
-- Does NOT conduct analysis or write reports directly -- delegate to analyst, researcher, or docs
-- Does NOT use EnterPlanMode tool -- orchestrators coordinate, agents execute
+- Does NOT design research methodology — that is the planner's role
+- Does NOT enter plan mode for research tasks — delegate to planner instead
+- Does NOT conduct analysis or write reports directly — delegate to analyst, researcher, or docs
+- Does NOT use EnterPlanMode tool — orchestrators coordinate, agents execute
 
-**Exception -- bootstrap:** The orchestrator directly edits `CLAUDE.md`, agent files, and `project-context.md` during bootstrap. This is configuration, not research content -- no delegation needed.
+**Exception — bootstrap:** The orchestrator directly edits `CLAUDE.md`, agent files, and `project-context.md` during bootstrap. This is configuration, not research content — no delegation needed.
 
 **New session orientation:** Read `.claude/docs/project-context.md` first for a quick project overview, then this file for full rules. If `project-context.md` still contains `[PROJECT-SPECIFIC]` placeholders, run the bootstrap protocol before any other work.
 
 ## Agent Knowledge Hierarchy
 
-All agents operate under a strict three-level knowledge hierarchy. Higher levels always override lower levels -- no exceptions.
+All agents operate under a strict three-level knowledge hierarchy. Higher levels always override lower levels — no exceptions.
 
 ```
 1. CLAUDE.md + agent .md instructions   <- authoritative, always wins
@@ -100,44 +127,44 @@ All agents operate under a strict three-level knowledge hierarchy. Higher levels
 
 **Rules:**
 - Every agent reads CLAUDE.md **before** reading its own notes.
-- If notes contradict CLAUDE.md or agent instructions, **CLAUDE.md wins** -- the agent must update notes to reflect current rules before proceeding.
+- If notes contradict CLAUDE.md or agent instructions, **CLAUDE.md wins** — the agent must update notes to reflect current rules before proceeding.
 - Notes never establish rules, never override conventions, and never substitute for proper documentation.
-- Notes are local only -- never committed to git, never shared between agents.
+- Notes are local only — never committed to git, never shared between agents.
 
-## Research Cycle -- Task-driven Review Chain
+## Research Cycle — Task-driven Review Chain
 
 **Claude Code (orchestrator) determines the tier and invokes the first agent.** Planner is only involved from Tier 2 upward. **docs is always last.**
 
 | Tier | Change type | Chain |
 |------|-------------|-------|
-| 0 -- Trivial | Citation fix, formatting, minor correction | Direct edit -> docs |
-| 1 -- Routine | Add a source, update a data point, minor analysis update | researcher -> critic -> docs |
-| 2 -- Standard | New research question, literature review section, analysis chapter | planner -> critic -> researcher -> critic -> docs |
-| 3 -- Extended | Multi-source analysis, cross-domain synthesis, complex methodology | planner -> critic -> researcher -> analyst -> critic -> docs |
-| 4 -- Full | Complete research project, comprehensive report, policy recommendation | planner -> critic -> researcher -> analyst -> critic -> visualizer -> docs |
+| 0 — Trivial | Citation fix, formatting, minor correction | Direct edit → docs |
+| 1 — Routine | Add a source, update a data point, minor analysis update | researcher → critic → docs |
+| 2 — Standard | New research question, literature review section, analysis chapter | planner → critic → researcher → critic → docs |
+| 3 — Extended | Multi-source analysis, cross-domain synthesis, complex methodology | planner → critic → researcher → analyst → critic → docs |
+| 4 — Full | Complete research project, comprehensive report, policy recommendation | planner → critic → researcher → analyst → critic → visualizer → docs |
 
 **Escalation logic:**
-- Tier 0 -> 0 agents, direct edit
-- Tier 1 -> 3 agents, no planning needed (update is self-evident)
-- Tier 2 -> 5 agents, planner designs + critic gates before AND after research
-- Tier 3 -> 6 agents, adds analyst for data analysis and synthesis
-- Tier 4 -> 7 agents, full pipeline including visualizer for presentation materials
+- Tier 0 → 0 agents, direct edit
+- Tier 1 → 3 agents, no planning needed (update is self-evident)
+- Tier 2 → 5 agents, planner designs + critic gates before AND after research
+- Tier 3 → 6 agents, adds analyst for data analysis and synthesis
+- Tier 4 → 7 agents, full pipeline including visualizer for presentation materials
 
-**Rule: critic is mandatory for every substantive research change (Tier 1-4).** The only exception is Tier 0 -- purely cosmetic edits with zero content changes.
+**Rule: critic is mandatory for every substantive research change (Tier 1-4).** The only exception is Tier 0 — purely cosmetic edits with zero content changes.
 
 **Loop-back protocol:** The critic issues an explicit **PASS** or **FAIL** verdict. FAIL pauses the chain and returns to the responsible agent (planner for methodology issues, researcher for source issues, analyst for analysis issues) with a numbered remediation list. The chain does not advance until PASS is issued. There is no limit on iterations.
 
-**Chain routing:** Agents always write a HANDOFF section (PASS and FAIL) with full context for the next agent. The orchestrator follows the tier chain by default but may override the HANDOFF `To:` target when the situation requires it (e.g. agent suggests docs but the chain has analyst/visualizer remaining). Agents should suggest the most likely next agent based on their position in the chain -- the orchestrator corrects if needed.
+**Chain routing:** Agents always write a HANDOFF section (PASS and FAIL) with full context for the next agent. The orchestrator follows the tier chain by default but may override the HANDOFF `To:` target when the situation requires it (e.g. agent suggests docs but the chain has analyst/visualizer remaining). Agents should suggest the most likely next agent based on their position in the chain — the orchestrator corrects if needed.
 
 **Criteria for upgrading a tier:**
-- Multiple independent data sources requiring cross-referencing -> at least Tier 3
-- Statistical analysis or quantitative reasoning -> at least Tier 3
-- New research question or methodology change -> at least Tier 2
-- Complete research deliverable or report -> at least Tier 4
-- Policy recommendations or high-stakes conclusions -> Tier 4
-- Visual deliverables (charts, infographics, presentations) -> Tier 4
-- Adding a single well-understood source -> Tier 1
-- Minor text correction with no analytical impact -> Tier 0
+- Multiple independent data sources requiring cross-referencing → at least Tier 3
+- Statistical analysis or quantitative reasoning → at least Tier 3
+- New research question or methodology change → at least Tier 2
+- Complete research deliverable or report → at least Tier 4
+- Policy recommendations or high-stakes conclusions → Tier 4
+- Visual deliverables (charts, infographics, presentations) → Tier 4
+- Adding a single well-understood source → Tier 1
+- Minor text correction with no analytical impact → Tier 0
 
 **When in doubt, upgrade the tier.** The cost of an extra review is lower than the cost of a flawed conclusion in the final report.
 
@@ -182,7 +209,7 @@ _Define conventions for: source files, analysis documents, report sections, figu
 - Do not fabricate sources, citations, or data points
 - Do not present opinion as evidence
 - Do not suppress findings that contradict the hypothesis
-- Do not plagiarize -- always attribute ideas and quotes
+- Do not plagiarize — always attribute ideas and quotes
 - Do not conflate correlation with causation
 - Do not generalize beyond what the data supports
 - Do not use weasel words ("some experts say", "it is widely believed") without attribution

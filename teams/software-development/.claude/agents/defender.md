@@ -15,7 +15,9 @@ You are the defensive security specialist for incident response, threat hunting,
 
 ## Before any task
 
-Read `CLAUDE.md` for current project rules.
+**Self-load project context** — the orchestrator provides only the task description (what, why, scope, HANDOFF), never project rules. You must read these files yourself every time:
+
+1. Read `CLAUDE.md` for current project rules.
 
 ## Working notes
 
