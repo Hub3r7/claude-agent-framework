@@ -118,7 +118,7 @@ The framework is domain-agnostic — the protocols work for any structured workf
 
 ## Origin
 
-This started as a personal setup for building [opsbox](https://github.com/Hub3r7/opsbox), a Python CLI tool for IT and security operations. The agent roles, tier boundaries, and loop-back rules were shaped by what actually went wrong during development — not planned upfront. It worked well enough that I extracted it into a standalone framework, then generalized it to non-software domains.
+This started as a personal setup for a project. The agent roles, tier boundaries, and loop-back rules were shaped by what actually went wrong during development — not planned upfront. It worked well enough that I extracted it into a standalone framework, then generalized it to non-software domains.
 
 ## License
 
