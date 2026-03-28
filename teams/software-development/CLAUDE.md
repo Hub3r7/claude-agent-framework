@@ -89,6 +89,10 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 | `/bootstrap` | Run the bootstrap protocol to customize all `[PROJECT-SPECIFIC]` sections |
 | `/tier-check` | Analyze a task and recommend the appropriate tier (0-4) with full chain |
 | `/chain-metrics` | Display token/cost/duration metrics after a completed agent chain |
+| `/commit` | Create a conventional commit from current changes |
+| `/push` | Push current branch to remote with safety checks |
+| `/re-review` | Re-run review chain on existing code (review only, no changes) |
+| `/deep-analysis` | Deep analysis of project structure, logic, and patterns |
 
 ## Agent Knowledge Hierarchy
 
