@@ -13,7 +13,7 @@ A collection of markdown-defined agent teams for Claude Code. Each team adds str
 
 | Team | Domain | Agents | Use case |
 |------|--------|--------|----------|
-| [software-development](teams/software-development/) | Software engineering | architect, developer, quality-gate, hunter, defender, test-runner, ops-automation, docs | Building and maintaining software projects |
+| [software-development](teams/software-development/) | Software engineering | architect, developer, quality-gate, hunter, defender, docs | Building and maintaining software projects |
 | [devops-sre](teams/devops-sre/) | Infrastructure & operations | architect, builder, reviewer, monitor, incident, security, docs | IaC, deployment, monitoring, incident response |
 | [data-engineering](teams/data-engineering/) | Data pipelines & analytics | architect, builder, quality, analyst, security, optimizer, docs | ETL/ELT, data quality, pipeline development |
 | [research-analysis](teams/research-analysis/) | Research & synthesis | planner, researcher, analyst, critic, visualizer, docs | Literature review, data analysis, reports |

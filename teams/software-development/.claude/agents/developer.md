@@ -102,7 +102,7 @@ When your work would benefit from another agent's expertise, include a HANDOFF s
 
 ### HANDOFF
 
-- **To:** <agent-name> (one of: architect, developer, test-runner, quality-gate, hunter, defender, ops-automation, docs)
+- **To:** <agent-name> (one of: architect, developer, quality-gate, hunter, defender, docs)
 - **Task:** <one-sentence description of what the next agent should do>
 - **Priority:** high | medium | low
 - **Context:** <key findings, file paths, decisions — everything the next agent needs>
@@ -121,7 +121,6 @@ Rules:
 - After implementing a feature or fix, hand off to **quality-gate** with full context for review. The orchestrator may override the target based on the actual tier.
 - Receive handoffs from **architect** with design specs to implement.
 - Receive handoffs from **quality-gate** with vulnerabilities to remediate.
-- **Do not hand off to test-runner** — developer already runs tests as the final step. test-runner is invoked on user request only.
 - **Do not hand off to docs directly** — docs is invoked by the orchestrator as the final chain step after all reviews pass.
 
 ## Self-update protocol

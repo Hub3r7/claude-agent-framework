@@ -104,7 +104,7 @@ When your work would benefit from another agent's expertise, include a HANDOFF s
 
 ### HANDOFF
 
-- **To:** <agent-name> (one of: architect, developer, test-runner, quality-gate, hunter, defender, ops-automation, docs)
+- **To:** <agent-name> (one of: architect, developer, quality-gate, hunter, defender, docs)
 - **Task:** <one-sentence description of what the next agent should do>
 - **Priority:** high | medium | low
 - **Context:** <key findings, file paths, decisions — everything the next agent needs>

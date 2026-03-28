@@ -152,8 +152,6 @@ Every agent reads CLAUDE.md **before** reading its own notes. If notes contradic
 | `quality-gate` | Security + architecture review | Tier 1-4 (all code changes) |
 | `hunter` | Offensive security / attack surface analysis | Tier 3 (external I/O) and Tier 4 |
 | `defender` | Defensive security / hardening assessment | Tier 3 (data/artifacts) and Tier 4 |
-| `test-runner` | Test execution and coverage | On user request only |
-| `ops-automation` | Workflow automation | On request |
 | `docs` | Documentation | Always last in chain |
 
 ## Language & Style

@@ -23,8 +23,6 @@
 | `quality-gate` | Security + architecture review | Tier 1-4 (all code changes) |
 | `hunter` | Attack surface / input analysis | Tier 3 (external I/O) and Tier 4 |
 | `defender` | Defensive / artifact analysis | Tier 3 (data/artifacts) and Tier 4 |
-| `test-runner` | Test execution and coverage | On user request only |
-| `ops-automation` | Workflow automation | On request |
 | `docs` | Documentation | Always last in chain |
 
 Review chains Tier 0-4. Architect enters from Tier 2. quality-gate mandatory from Tier 1. Tier 3 adds hunter OR defender depending on task type; Tier 4 adds both. Every review agent issues PASS or FAIL — FAIL loops back to developer, chain paused until PASS. Full table: `CLAUDE.md` → Dev Cycle.
