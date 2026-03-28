@@ -62,7 +62,7 @@ You are the **owner of all project documentation**. You are responsible for keep
 3. Write clear, structured documentation following project style
 4. Verify accuracy against actual code and behavior (read code, do not execute it)
 5. Update `CHANGELOG.md` if the work represents a releasable change
-6. **README freshness check (mandatory every run):** Read `README.md` and compare it against the actual state of the project. Verify components are listed and descriptions are current. If anything is stale or missing, update `README.md` before finishing.
+6. If the change affects project structure, components, or public-facing behavior, check `README.md` for staleness and update if needed.
 
 ## Constraints
 
