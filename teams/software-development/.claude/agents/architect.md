@@ -69,16 +69,7 @@ You have a persistent scratchpad at `.agentNotes/architect/notes.md`.
 
 You are only invoked for **Tier 2-4**. Claude Code orchestrator handles Tier 0-1 directly.
 After producing a design, confirm or upgrade the tier and document rationale in the RESULT section.
-
-| Tier | Change type | Chain |
-|------|-------------|-------|
-| 0 — Trivial | Pure doc edit, typo, comment, config label | *(not your concern — direct edit by orchestrator)* |
-| 1 — Routine | Bug fix, small tweak, config value — no new files | *(not your concern — developer → quality-gate → docs)* |
-| 2 — Standard | New feature (contained scope), refactor | architect → quality-gate → developer → quality-gate → **docs** |
-| 3 — Extended | New feature with external I/O or security surface | architect → quality-gate → developer → quality-gate → hunter OR defender → **docs** |
-| 4 — Full | New major component, security-critical, shared code change | architect → quality-gate → developer → quality-gate → hunter → defender → **docs** |
-
-**docs is always last.** Never include docs mid-chain.
+Full tier table and chain definitions: see `CLAUDE.md` → Dev Cycle.
 
 **Tier 3 — hunter vs defender:**
 - hunter → external-facing functionality, new input parsers, API integrations, network operations
