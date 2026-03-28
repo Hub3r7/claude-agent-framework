@@ -2,11 +2,16 @@
 name: defender
 description: Defensive security specialist. Use for system hardening assessment, forensic analysis, detection rule development, or defensive posture review after offensive findings.
 model: sonnet
+effort: high
+maxTurns: 10
 tools:
   - Read
   - Grep
   - Glob
   - Bash
+disallowedTools:
+  - Edit
+  - Write
 ---
 
 # Defender Agent

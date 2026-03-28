@@ -2,6 +2,7 @@
 name: developer
 description: Implementation specialist. Use when building new components, adding features, writing library code, or fixing implementation issues.
 model: opus
+maxTurns: 15
 tools:
   - Read
   - Write

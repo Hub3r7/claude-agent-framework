@@ -124,6 +124,8 @@ Every agent reads CLAUDE.md **before** reading its own notes. If notes contradic
 
 **Tier upgrade rules:** New major component or security-sensitive operations (auth, crypto) → Tier 4. External network requests, persistent artifacts, or shared/core code changes → at least Tier 3. New files → at least Tier 2. When in doubt, upgrade.
 
+**Worktree isolation:** For Tier 3-4 changes with high blast radius, the orchestrator MAY invoke developer with `isolation: "worktree"` to work on an isolated git copy. The worktree is auto-cleaned if no changes are made.
+
 ## Agent Team
 
 | Agent | Role | When |

@@ -2,10 +2,15 @@
 name: quality-gate
 description: Security and architecture review specialist. Use when reviewing designs for correctness and security, or reviewing code for OWASP vulnerabilities, input validation, hardcoded secrets, and unsafe operations.
 model: sonnet
+effort: high
+maxTurns: 10
 tools:
   - Read
   - Grep
   - Glob
+disallowedTools:
+  - Edit
+  - Write
 ---
 
 # Quality Gate Agent

@@ -83,6 +83,11 @@ teams/<team-name>/
       project-context.md             → Session orientation template
     skills/
       <skill-name>/SKILL.md          → Slash-command skills for the orchestrator
+    hooks/
+      <hook-script>.sh               → Lifecycle hook scripts (PreToolUse, etc.)
+    rules/
+      <rule>.md                      → Path-conditional rules (lazy-loaded)
+    settings.template.json           → Recommended hooks/settings configuration
 ```
 
 ## Choosing a team
