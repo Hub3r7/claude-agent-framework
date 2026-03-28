@@ -2,6 +2,7 @@
 name: optimizer
 description: Performance and cost optimization specialist. Use for query optimization, partitioning strategy, pipeline performance tuning, or cloud cost analysis.
 model: sonnet
+effort: high
 maxTurns: 10
 tools:
   - Read
