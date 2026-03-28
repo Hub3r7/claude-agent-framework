@@ -6,36 +6,9 @@
 
 ## Bootstrap Protocol (MANDATORY)
 
-When this file contains `[PROJECT-SPECIFIC]` placeholders, the orchestrator MUST execute the full bootstrap sequence below before any work begins. This is a strict step-by-step protocol — not a reference to follow loosely.
+When this file contains `[PROJECT-SPECIFIC]` placeholders, the orchestrator MUST run the full bootstrap protocol before any work begins. Read `.claude/docs/bootstrap-protocol.md` and execute every phase in sequence.
 
 **Bootstrap trigger:** The user says "bootstrap" / "set up agents" / "configure for this project", OR the orchestrator detects unfilled `[PROJECT-SPECIFIC]` sections on first read.
-
-**Step 1 — Project Discovery (orchestrator ↔ user):**
-Ask the user about the project. Start with 1–3 topics and let the conversation flow:
-1. What is the project? (name, purpose, audience)
-2. Tech stack (language, framework, runtime, package manager)
-3. Architecture (structure, component model)
-4. Environment (setup, run, test)
-5. Conventions (naming, style, commit rules)
-6. Security posture (sensitive data, auth, integrations)
-7. Special principles (project-specific non-negotiables)
-
-**Step 1b — Agent consultation (optional):**
-If the orchestrator judges that a specific agent's domain expertise would sharpen the project understanding, it MAY invoke that agent with targeted questions — e.g., architect for architecture clarity, security agent for threat model. This is not mandatory and not every agent needs to be consulted — only when user answers leave gaps in a specific domain.
-
-**Step 2 — Confirmation:**
-Summarize as a structured PROJECT PROFILE and ask: "Does this capture the project correctly?"
-
-**Step 3 — Model Assignment:**
-Present the default model assignment table (Opus/Sonnet/Haiku per agent) with cost ratios (Opus ≈ 3× Sonnet ≈ 15× Haiku). Ask user to confirm or adjust.
-
-**Step 4 — Agent Specialization:**
-Fill ALL `[PROJECT-SPECIFIC]` sections in: `CLAUDE.md`, every agent `.md` under `.claude/agents/`, and `.claude/docs/project-context.md`.
-
-**Step 5 — Verification:**
-Read back every modified file. Confirm zero `[PROJECT-SPECIFIC]` placeholders remain. Report completion.
-
-**Detailed reference:** `.claude/docs/bootstrap-protocol.md`
 
 ## What is this project?
 
