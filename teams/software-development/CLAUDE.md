@@ -61,10 +61,13 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 - Do NOT re-read files already in context. Use existing knowledge from earlier in the session.
 - Keep agent prompts minimal: task description + HANDOFF context only.
 
+**Agent notes persistence:** Read-only agents (those without Write tool) cannot persist their own notes. When an agent includes a `## NOTES UPDATE` section in its output, the orchestrator writes the content to `.agentNotes/<agent>/notes.md`. This is a mechanical task — do not modify the agent's notes content.
+
 **During chain execution:**
 - State which agent is being invoked and why before each invocation
 - Surface BLOCKED sections immediately — never proceed past them silently
 - After every agent completes, check output for `AGENT UPDATE RECOMMENDED` — if present, surface the recommendation to the user immediately before proceeding with the chain
+- After every agent completes, check output for `## NOTES UPDATE` — if present, write the content to the agent's notes file
 - Verify acceptance criteria from each agent before invoking the next
 - Summarise results after the full chain completes, including a metrics table (use `/chain-metrics`)
 

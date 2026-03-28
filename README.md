@@ -34,14 +34,19 @@ A collection of markdown-defined agent teams for Claude Code. Each team adds str
    cp -r claude-agent-framework/teams/$TEAM/.claude /path/to/your/project/
    ```
 
-   You need three things in your project root:
+   You need these in your project root:
    - `CLAUDE.md` — orchestrator rules and project config
    - `.claude/agents/` — agent definitions
    - `.claude/docs/` — bootstrap protocol and project context template
+   - `.claude/skills/` — slash-command skills for the orchestrator
+   - `.claude/hooks/` — lifecycle hook scripts
+   - `.claude/rules/` — path-conditional rules
 
-3. **Open Claude Code** in your project and say:
+   Optionally, copy `settings.template.json` to `.claude/settings.json` to enable hooks.
+
+3. **Open Claude Code** in your project and run:
    ```
-   bootstrap this project
+   /bootstrap
    ```
 
 4. **Answer the orchestrator's questions.** It will:
@@ -65,6 +70,10 @@ Every team follows the same core architecture:
 **Bootstrap customization** — Generic `[PROJECT-SPECIFIC]` placeholders are replaced through a structured conversation, not a config file. Agents become specialists in your specific context.
 
 **Agent notes** — Agents accumulate knowledge across sessions through `.agentNotes/`. Notes are subordinate to `CLAUDE.md` (never override rules) but provide working memory that makes agents more effective over time.
+
+**Skills** — Every team includes slash-command skills (`/bootstrap`, `/tier-check`, `/chain-metrics`, `/commit`, `/push`, `/re-review`, `/deep-analysis`) that automate common orchestrator workflows.
+
+**Safety hooks** — Optional PreToolUse hooks block destructive git operations (force-push, reset --hard, etc.) before they execute.
 
 ## Team structure
 
@@ -103,7 +112,7 @@ Each team is **completely standalone**. You only need the files from one team �
 
 ## Re-bootstrap
 
-If your project evolves significantly, say "re-bootstrap" and the orchestrator will update the project-specific sections while preserving what still applies.
+If your project evolves significantly, run `/bootstrap` again and the orchestrator will update the project-specific sections while preserving what still applies.
 
 ## Building your own team
 

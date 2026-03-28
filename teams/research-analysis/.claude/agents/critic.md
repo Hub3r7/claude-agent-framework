@@ -2,10 +2,16 @@
 name: critic
 description: Research quality specialist. Use for methodology review, peer review, bias detection, logical consistency check, or evidence quality assessment.
 model: sonnet
+maxTurns: 10
+effort: high
 tools:
   - Read
   - Grep
   - Glob
+disallowedTools:
+  - Edit
+  - Write
+  - Bash
 ---
 
 # Critic Agent
@@ -25,11 +31,11 @@ You have a persistent scratchpad at `.agentNotes/critic/notes.md`.
 
 **At the start of every task:** Read the file if it exists — use it to restore context from previous sessions (quality patterns, recurring methodological issues, review standards applied).
 
-**At the end of every task:** Update the file with quality findings and anything that would prevent duplicate work next session.
+**At the end of every task:** Include a `## NOTES UPDATE` section in your output with the full updated notes content. The orchestrator will persist this to your notes file on your behalf (you do not have Write access). If nothing worth preserving, omit the section.
 
 
-**Size limit:** Keep notes under 200 lines. At every write, actively compact: remove resolved items, merge related points, drop anything already captured in project docs or CLAUDE.md. Prefer terse bullet points over narrative. If notes exceed 50 lines, truncate the oldest resolved entries first.
-**Conflict rule:** If notes contradict CLAUDE.md or your agent instructions, CLAUDE.md wins — update notes before proceeding.
+**Size limit:** Keep notes under 200 lines. Actively compact: remove resolved items, merge related points, drop anything already captured in project docs or CLAUDE.md. Prefer terse bullet points over narrative.
+**Conflict rule:** If notes contradict CLAUDE.md or your agent instructions, CLAUDE.md wins.
 
 **Scope:** Notes are your private memory. Notes are never committed to git.
 
