@@ -19,6 +19,7 @@
 | Agent | Role | When |
 |-------|------|------|
 | `architect` | Design + review chain selection | Tier 2-4 only |
+| `ui-designer` | UI/UX design + accessibility | Tier 2-4 (UI changes only) |
 | `developer` | Implementation | Tier 1-4 |
 | `quality-gate` | Security + architecture review | Tier 1-4 (all code changes) |
 | `hunter` | Attack surface / input analysis | Tier 3 (external I/O) and Tier 4 |

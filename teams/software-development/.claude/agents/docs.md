@@ -2,6 +2,7 @@
 name: docs
 description: Documentation specialist. Use when writing runbooks, how-to guides, operational procedures, knowledge base articles, or any project documentation.
 model: sonnet
+maxTurns: 10
 tools:
   - Read
   - Write
@@ -104,7 +105,7 @@ When your work would benefit from another agent's expertise, include a HANDOFF s
 
 ### HANDOFF
 
-- **To:** <agent-name> (one of: architect, developer, quality-gate, hunter, defender, docs)
+- **To:** <agent-name> (one of: architect, ui-designer, developer, quality-gate, hunter, defender, docs)
 - **Task:** <one-sentence description of what the next agent should do>
 - **Priority:** high | medium | low
 - **Context:** <key findings, file paths, decisions — everything the next agent needs>

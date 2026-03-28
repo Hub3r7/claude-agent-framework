@@ -45,14 +45,14 @@ Design → [Quality Gate] → Implement → [Quality Gate] → (hunter/defender)
 ```
 
 - **Phase:** Design and security gate — runs before AND after implementation (Tier 2-4)
-- **Receives from:** architect (pre-implementation design review), developer (post-implementation code review), developer again (re-review after fixes)
+- **Receives from:** architect or ui-designer (pre-implementation design review), developer (post-implementation code review), developer again (re-review after fixes)
 - **Hands off to:** developer (FAIL Mode B), architect (FAIL Mode A), or next chain agent (PASS — typically developer, hunter, defender, or docs depending on tier)
 
 ## Review modes
 
 ### Mode A — Pre-implementation design review (Tier 2-4, before developer)
 
-Received from: **architect**. Input is a design spec, not code.
+Received from: **architect** or **ui-designer**. Input is a design spec, not code.
 
 Design and security carry **equal weight** in this mode. A design can FAIL for architectural reasons alone, security reasons alone, or both.
 
@@ -65,7 +65,7 @@ Design and security carry **equal weight** in this mode. A design can FAIL for a
 - Attack surface introduced before a line is written — input sources, network calls, data writes, sensitive data exposure?
 - External deps justified — no unnecessary attack surface from new dependencies?
 
-FAIL in Mode A → return to **architect** (not developer) with a numbered list of design issues to resolve before implementation begins.
+FAIL in Mode A → return to the agent that provided the design (**architect** or **ui-designer**) with a numbered list of design issues to resolve before implementation begins.
 
 ---
 
@@ -136,7 +136,7 @@ When your work would benefit from another agent's expertise, include a HANDOFF s
 
 ### HANDOFF
 
-- **To:** <agent-name> (one of: architect, developer, quality-gate, hunter, defender, docs)
+- **To:** <agent-name> (one of: architect, ui-designer, developer, quality-gate, hunter, defender, docs)
 - **Task:** <one-sentence description of what the next agent should do>
 - **Priority:** high | medium | low
 - **Context:** <key findings, file paths, decisions — everything the next agent needs>
@@ -161,9 +161,9 @@ After every review, issue an explicit **PASS** or **FAIL** verdict before any HA
 - Suggest the most likely next agent based on your chain position (Mode A PASS → developer; Mode B PASS → hunter, defender, or docs). The orchestrator may override the target based on the actual tier.
 
 **FAIL in Mode A (design review):**
-- Hand off to **architect** with a numbered list of design issues
+- Hand off to the originating design agent (**architect** or **ui-designer**) with a numbered list of design issues
 - Do NOT hand off to developer — implementation must not begin on a flawed design
-- State clearly: `VERDICT: FAIL — returning to architect`
+- State clearly: `VERDICT: FAIL — returning to <architect|ui-designer>`
 - After architect revises the design: re-review the design; if clean, issue PASS and hand off to developer
 
 **FAIL in Mode B (code review):**
@@ -176,7 +176,7 @@ After every review, issue an explicit **PASS** or **FAIL** verdict before any HA
 
 ### Typical collaborations
 
-- Receive from **architect** → review the design before implementation begins (pre-gate)
+- Receive from **architect** or **ui-designer** → review the design before implementation begins (pre-gate)
 - Receive from **developer** → review implemented code (post-gate)
 - FAIL → hand off to **developer** with remediation list → receive back → re-review
 - PASS → hand off to next agent in chain (orchestrator may override target based on tier)

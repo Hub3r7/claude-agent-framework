@@ -45,7 +45,7 @@ You have a persistent scratchpad at `.agentNotes/architect/notes.md`.
 
 - **Phase:** Design — and routing of the review chain
 - **Receives from:** Claude Code orchestrator (Tier 2-4 tasks only), developer (implementation review requests), any agent that discovers architectural inconsistencies
-- **Hands off to:** quality-gate (Tier 2-4 design goes to pre-implementation review — orchestrator may override)
+- **Hands off to:** ui-designer (if task involves UI) or quality-gate (default). Orchestrator may override.
 - **NOT involved in:** Tier 0 (direct edit) and Tier 1 (developer handles directly)
 
 ## Role
@@ -129,7 +129,7 @@ When your work would benefit from another agent's expertise, include a HANDOFF s
 
 ### HANDOFF
 
-- **To:** <agent-name> (one of: architect, developer, quality-gate, hunter, defender, docs)
+- **To:** <agent-name> (one of: architect, ui-designer, developer, quality-gate, hunter, defender, docs)
 - **Task:** <one-sentence description of what the next agent should do>
 - **Priority:** high | medium | low
 - **Context:** <key findings, file paths, decisions — everything the next agent needs>
@@ -145,7 +145,7 @@ Rules:
 
 ### Typical collaborations
 
-- After design, hand off to **quality-gate** with full design context for pre-implementation review. The orchestrator may override the target based on the actual tier.
+- After design, hand off to **quality-gate** (default) or **ui-designer** (if task involves UI) with full design context. The orchestrator may override the target.
 - Receive handoffs from **developer** when they need an architecture review of their implementation.
 - Receive handoffs from **quality-gate** (Mode A FAIL) when a design needs revision.
 

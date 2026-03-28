@@ -83,6 +83,7 @@ against cost — not every agent needs the most powerful (and expensive) model.
 MODEL ASSIGNMENT (default)
 ==========================
 architect       Opus      (complex design decisions, tier selection)
+ui-designer     Sonnet    (UI/UX design with clear patterns)
 developer       Opus      (implementation requires deep understanding)
 quality-gate    Sonnet    (structured review with clear criteria)
 hunter          Sonnet    (security analysis with defined patterns)
@@ -122,29 +123,33 @@ Once confirmed, update the following files by replacing `[PROJECT-SPECIFIC]` sec
    - Project-specific review criteria (what to check during design review)
    - Component contract details (if the project has a module/plugin system)
 
-3. **`.claude/agents/developer.md`** — Add:
+3. **`.claude/agents/ui-designer.md`** — Add:
+   - Design system, component library, breakpoints, color palette, typography
+   - Accessibility standards and requirements
+
+4. **`.claude/agents/developer.md`** — Add:
    - Project-specific implementation rules
    - Framework conventions, file patterns, import rules
 
-4. **`.claude/agents/quality-gate.md`** — Add:
+5. **`.claude/agents/quality-gate.md`** — Add:
    - Project-specific security review criteria
    - Framework-specific vulnerability patterns (e.g., XSS for web, injection for APIs)
 
-5. **`.claude/agents/hunter.md`** — Add:
+6. **`.claude/agents/hunter.md`** — Add:
    - Project-specific attack surface areas
    - Technology-specific vulnerability classes to watch for
 
-6. **`.claude/agents/defender.md`** — Add:
+7. **`.claude/agents/defender.md`** — Add:
    - Project-specific defensive review criteria
    - Data integrity, logging, and audit trail expectations
 
-7. **`.claude/agents/docs.md`** — Add:
+8. **`.claude/agents/docs.md`** — Add:
    - Documentation templates for the project's component type
    - What documents to maintain and their update triggers
 
-8. **`.claude/docs/project-context.md`** — Fill in all sections.
-9. **`docs/project-rules.md`** — Create this file during bootstrap with project-specific implementation rules extracted from CLAUDE.md. Move detailed conventions (language & style, naming, testing, environment, what NOT to do) here. This keeps CLAUDE.md lean for the orchestrator while agents get full rules.
-10. **Agent self-load update** — After creating `docs/project-rules.md`, update every agent's `## Before any task` section to include:
+9. **`.claude/docs/project-context.md`** — Fill in all sections.
+10. **`docs/project-rules.md`** — Create this file during bootstrap with project-specific implementation rules extracted from CLAUDE.md. Move detailed conventions (language & style, naming, testing, environment, what NOT to do) here. This keeps CLAUDE.md lean for the orchestrator while agents get full rules.
+11. **Agent self-load update** — After creating `docs/project-rules.md`, update every agent's `## Before any task` section to include:
     ```
     1. Read `CLAUDE.md` for project principles and chain rules.
     2. Read `docs/project-rules.md` for implementation conventions.
@@ -154,14 +159,14 @@ Once confirmed, update the following files by replacing `[PROJECT-SPECIFIC]` sec
 ### Phase 5 — Verification
 
 After updating all files:
-1. Read back each modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain (check `CLAUDE.md`, all 6 agent files under `.claude/agents/`, `.claude/docs/project-context.md`, AND `docs/project-rules.md`)
+1. Read back each modified file to verify no `[PROJECT-SPECIFIC]` placeholders remain (check `CLAUDE.md`, all 7 agent files under `.claude/agents/`, `.claude/docs/project-context.md`, AND `docs/project-rules.md`)
 2. Verify consistency across files (same architecture description, same conventions)
 3. Report to the user:
 
 ```
 BOOTSTRAP COMPLETE
 ==================
-Updated: CLAUDE.md, 6 agent files, project-context.md, project-rules.md
+Updated: CLAUDE.md, 7 agent files, project-context.md, project-rules.md
 Remaining placeholders: 0
 Ready to start development.
 ```

@@ -122,6 +122,8 @@ Every agent reads CLAUDE.md **before** reading its own notes. If notes contradic
 
 **Chain routing:** Agents write a HANDOFF section with full context for the next agent. The orchestrator follows the tier chain by default but may override. Tier 3: hunter (external I/O, input parsers, network) vs defender (data persistence, audit trails, file integrity).
 
+**UI chain insertion:** When a Tier 2-4 task involves UI changes, insert ui-designer after architect and before quality-gate (e.g., architect → ui-designer → quality-gate → developer → ...).
+
 **Tier upgrade rules:** New major component or security-sensitive operations (auth, crypto) → Tier 4. External network requests, persistent artifacts, or shared/core code changes → at least Tier 3. New files → at least Tier 2. When in doubt, upgrade.
 
 **Worktree isolation:** For Tier 3-4 changes with high blast radius, the orchestrator MAY invoke developer with `isolation: "worktree"` to work on an isolated git copy. The worktree is auto-cleaned if no changes are made.
@@ -131,6 +133,7 @@ Every agent reads CLAUDE.md **before** reading its own notes. If notes contradic
 | Agent | Role | When |
 |-------|------|------|
 | `architect` | Design + review chain selection | Tier 2-4 only |
+| `ui-designer` | UI/UX design + accessibility review | Tier 2-4 (UI changes only) |
 | `developer` | Implementation | Tier 1-4 |
 | `quality-gate` | Security + architecture review | Tier 1-4 (all code changes) |
 | `hunter` | Offensive security / attack surface analysis | Tier 3 (external I/O) and Tier 4 |
