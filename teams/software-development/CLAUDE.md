@@ -1,14 +1,10 @@
 # Project Guide for Claude Code
 
-> **New project?** Run the bootstrap protocol: tell the orchestrator about your project
-> and it will customize all `[PROJECT-SPECIFIC]` sections automatically.
-> See `.claude/docs/bootstrap-protocol.md` for details, or just say "bootstrap this project".
+> **New project?** Run `/bootstrap` to customize all `[PROJECT-SPECIFIC]` sections for your project.
 
 ## Bootstrap Protocol (MANDATORY)
 
-When this file contains `[PROJECT-SPECIFIC]` placeholders, the orchestrator MUST run the full bootstrap protocol before any work begins. Read `.claude/docs/bootstrap-protocol.md` and execute every phase in sequence.
-
-**Bootstrap trigger:** The user says "bootstrap" / "set up agents" / "configure for this project", OR the orchestrator detects unfilled `[PROJECT-SPECIFIC]` sections on first read.
+When this file contains `[PROJECT-SPECIFIC]` placeholders, the orchestrator MUST run `/bootstrap` before any work begins. If the user says "bootstrap" / "set up agents" / "configure for this project", or the orchestrator detects unfilled `[PROJECT-SPECIFIC]` placeholders on first read, invoke the bootstrap skill.
 
 ## What is this project?
 
@@ -70,7 +66,7 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 - Surface BLOCKED sections immediately — never proceed past them silently
 - After every agent completes, check output for `AGENT UPDATE RECOMMENDED` — if present, surface the recommendation to the user immediately before proceeding with the chain
 - Verify acceptance criteria from each agent before invoking the next
-- Summarise results after the full chain completes, including a metrics table (template: `.claude/docs/chain-metrics.md`)
+- Summarise results after the full chain completes, including a metrics table (use `/chain-metrics`)
 
 **What Claude Code NEVER does:**
 - Does NOT design implementations — that is the architect's role
@@ -85,6 +81,14 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 **Exception — bootstrap:** The orchestrator directly edits `CLAUDE.md`, agent files, and `project-context.md` during bootstrap. This is configuration, not project code — no delegation needed.
 
 **New session orientation:** Read `.claude/docs/project-context.md` first for a quick project overview, then this file for full rules. If `project-context.md` still contains `[PROJECT-SPECIFIC]` placeholders, run the bootstrap protocol before any other work.
+
+## Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `/bootstrap` | Run the bootstrap protocol to customize all `[PROJECT-SPECIFIC]` sections |
+| `/tier-check` | Analyze a task and recommend the appropriate tier (0-4) with full chain |
+| `/chain-metrics` | Display token/cost/duration metrics after a completed agent chain |
 
 ## Agent Knowledge Hierarchy
 

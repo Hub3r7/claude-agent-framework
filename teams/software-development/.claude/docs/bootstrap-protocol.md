@@ -17,7 +17,7 @@ project-specific rules through a structured conversation with the user.
 Run bootstrap when:
 - Starting a new project with this framework
 - `CLAUDE.md` still contains `[PROJECT-SPECIFIC]` placeholders
-- The user says "bootstrap", "set up agents", or "configure for this project"
+- The user invokes `/bootstrap` or says "bootstrap", "set up agents", or "configure for this project"
 
 ## Bootstrap phases
 

@@ -81,6 +81,8 @@ teams/<team-name>/
     docs/
       bootstrap-protocol.md          → Bootstrap conversation protocol
       project-context.md             → Session orientation template
+    skills/
+      <skill-name>/SKILL.md          → Slash-command skills for the orchestrator
 ```
 
 ## Choosing a team
