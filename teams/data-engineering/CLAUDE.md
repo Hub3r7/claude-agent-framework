@@ -97,7 +97,7 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 - Surface BLOCKED sections immediately — never proceed past them silently
 - After every agent completes, check output for `AGENT UPDATE RECOMMENDED` — if present, surface the recommendation to the user immediately before proceeding with the chain
 - Verify acceptance criteria from each agent before invoking the next
-- Summarise results after the full chain completes, including a metrics table (template: `docs/chain-metrics.md`)
+- Summarise results after the full chain completes, including a metrics table (template: `.claude/docs/chain-metrics.md`)
 
 **What Claude Code NEVER does:**
 - Does NOT design pipelines or schemas — that is the architect's role
