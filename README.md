@@ -1,4 +1,4 @@
-# Claude Agent Framework
+# Claude Code Orchestration Template
 
 A collection of markdown-defined agent teams for Claude Code. Each team adds structured review chains, tiered escalation, and quality gates to a specific workflow domain. No code to maintain — everything is in `CLAUDE.md` and `.claude/` files.
 
@@ -26,12 +26,12 @@ A collection of markdown-defined agent teams for Claude Code. Each team adds str
 
    ```bash
    # Clone the framework
-   git clone https://github.com/Hub3r7/claude-agent-framework.git
+   git clone https://github.com/Hub3r7/claude-code-orchestration-template.git
 
    # Copy team files to your project (replace TEAM with your choice)
    TEAM=software-development
-   cp claude-agent-framework/teams/$TEAM/CLAUDE.md /path/to/your/project/
-   cp -r claude-agent-framework/teams/$TEAM/.claude /path/to/your/project/
+   cp claude-code-orchestration-template/teams/$TEAM/CLAUDE.md /path/to/your/project/
+   cp -r claude-code-orchestration-template/teams/$TEAM/.claude /path/to/your/project/
    ```
 
    You need these in your project root:
