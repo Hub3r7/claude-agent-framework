@@ -192,6 +192,6 @@ Phase: _Describe the current research phase and what has been completed so far._
 
 ## Response Language
 
-<!-- [PROJECT-SPECIFIC] Set the communication language. -->
+<!-- [PROJECT-SPECIFIC] Set the communication language (determined in bootstrap Phase 0). -->
 
-Communicate with the user in their preferred language. All research content, citations, and documentation remain in English unless the project explicitly requires another language.
+Communicate with the user in their preferred language. **All file content is always written in English** — this includes CLAUDE.md, agent files, project docs, and agent notes, regardless of communication language.

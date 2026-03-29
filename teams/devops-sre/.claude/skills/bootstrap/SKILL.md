@@ -8,4 +8,6 @@ allowed-tools: Read, Write, Edit, Glob, Grep, Agent
 
 Read `.claude/docs/bootstrap-protocol.md` and execute every phase in strict sequence.
 
-Do not skip phases, do not reorder. Ask the user about the project, confirm the profile, discuss model assignment, then fill all `[PROJECT-SPECIFIC]` sections.
+Do not skip phases, do not reorder. Start with Phase 0 (language negotiation), then ask the user about the project, confirm the profile, discuss model assignment, and fill all `[PROJECT-SPECIFIC]` sections.
+
+**File language rule:** All file content is always written in English, regardless of the user's communication language preference.

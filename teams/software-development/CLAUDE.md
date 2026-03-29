@@ -191,6 +191,6 @@ Phase: _Describe the current development phase and what has been built so far._
 
 ## Response Language
 
-<!-- [PROJECT-SPECIFIC] Set the communication language. -->
+<!-- [PROJECT-SPECIFIC] Set the communication language (determined in bootstrap Phase 0). -->
 
-Communicate with the user in their preferred language. All code, comments, docstrings, and documentation remain in English.
+Communicate with the user in their preferred language. **All file content is always written in English** — this includes CLAUDE.md, agent files, project docs, and agent notes, regardless of communication language.

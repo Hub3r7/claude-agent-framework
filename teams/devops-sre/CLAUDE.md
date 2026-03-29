@@ -201,6 +201,6 @@ Phase: _Describe the current infrastructure state and what is being built or mig
 
 ## Response Language
 
-<!-- [PROJECT-SPECIFIC] Set the communication language. -->
+<!-- [PROJECT-SPECIFIC] Set the communication language (determined in bootstrap Phase 0). -->
 
-Communicate with the user in their preferred language. All code, comments, documentation, and IaC definitions remain in English.
+Communicate with the user in their preferred language. **All file content is always written in English** — this includes CLAUDE.md, agent files, project docs, and agent notes, regardless of communication language.
