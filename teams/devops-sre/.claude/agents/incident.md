@@ -2,6 +2,7 @@
 name: incident
 description: Incident response and postmortem specialist. Use for active incident triage, root cause analysis, postmortem writing, runbook creation, or reviewing incident readiness. Can be invoked on-demand for real incidents regardless of tier.
 model: sonnet
+maxTurns: 10
 tools:
   - Read
   - Write

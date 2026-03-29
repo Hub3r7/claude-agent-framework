@@ -19,7 +19,23 @@ Run bootstrap when:
 - `CLAUDE.md` still contains `[PROJECT-SPECIFIC]` placeholders
 - The user says "bootstrap", "set up agents", or "configure for this project"
 
+## File language rule
+
+**All file content is always written in English** — regardless of what communication language the user prefers. This applies to: `CLAUDE.md`, all agent `.md` files, `project-context.md`, `bootstrap-protocol.md`, `.agentNotes/`, and any other file created or modified during bootstrap or normal operation.
+
+The communication language (what the orchestrator says to the user) is separate and is determined in Phase 0 below.
+
 ## Bootstrap phases
+
+### Phase 0 — Language Negotiation
+
+Before anything else, ask the user in a neutral/common language (or detect from their message):
+
+> "What language would you like me to communicate in during this session?"
+
+Record the answer. Use that language for all conversation with the user throughout bootstrap and normal operation. All file content remains in English regardless of the answer.
+
+If the user's message is already in a specific language, match it and confirm: "I'll communicate in [language]. All file content will be written in English."
 
 ### Phase 1 — Project Discovery (orchestrator ↔ user)
 

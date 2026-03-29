@@ -2,6 +2,7 @@
 name: builder
 description: Infrastructure implementation specialist. Use when writing Terraform, Ansible, Docker, CI/CD pipelines, deployment scripts, or any infrastructure code.
 model: opus
+maxTurns: 15
 tools:
   - Read
   - Write

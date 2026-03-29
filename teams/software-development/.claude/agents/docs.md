@@ -2,6 +2,7 @@
 name: docs
 description: Documentation specialist. Use when writing runbooks, how-to guides, operational procedures, knowledge base articles, or any project documentation.
 model: sonnet
+maxTurns: 10
 tools:
   - Read
   - Write
@@ -62,7 +63,7 @@ You are the **owner of all project documentation**. You are responsible for keep
 3. Write clear, structured documentation following project style
 4. Verify accuracy against actual code and behavior (read code, do not execute it)
 5. Update `CHANGELOG.md` if the work represents a releasable change
-6. **README freshness check (mandatory every run):** Read `README.md` and compare it against the actual state of the project. Verify components are listed and descriptions are current. If anything is stale or missing, update `README.md` before finishing.
+6. If the change affects project structure, components, or public-facing behavior, check `README.md` for staleness and update if needed.
 
 ## Constraints
 
@@ -104,7 +105,7 @@ When your work would benefit from another agent's expertise, include a HANDOFF s
 
 ### HANDOFF
 
-- **To:** <agent-name> (one of: architect, developer, quality-gate, hunter, defender, docs)
+- **To:** <agent-name> (one of: architect, ui-designer, developer, quality-gate, hunter, defender, docs)
 - **Task:** <one-sentence description of what the next agent should do>
 - **Priority:** high | medium | low
 - **Context:** <key findings, file paths, decisions — everything the next agent needs>

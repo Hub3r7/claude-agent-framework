@@ -19,6 +19,7 @@
 | Agent | Role | When |
 |-------|------|------|
 | `architect` | Design + review chain selection | Tier 2-4 only |
+| `ui-designer` | UI/UX design + accessibility | Tier 2-4 (UI changes only) |
 | `developer` | Implementation | Tier 1-4 |
 | `quality-gate` | Security + architecture review | Tier 1-4 (all code changes) |
 | `hunter` | Attack surface / input analysis | Tier 3 (external I/O) and Tier 4 |
@@ -26,6 +27,18 @@
 | `docs` | Documentation | Always last in chain |
 
 Review chains Tier 0-4. Architect enters from Tier 2. quality-gate mandatory from Tier 1. Tier 3 adds hunter OR defender depending on task type; Tier 4 adds both. Every review agent issues PASS or FAIL — FAIL loops back to developer, chain paused until PASS. Full table: `CLAUDE.md` → Dev Cycle.
+
+## Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `/bootstrap` | Customize all `[PROJECT-SPECIFIC]` sections |
+| `/tier-check` | Analyze task → recommend tier and chain |
+| `/chain-metrics` | Token/cost/duration breakdown after chain run |
+| `/commit` | Conventional commit from current changes |
+| `/push` | Push to remote with safety checks |
+| `/re-review` | Re-run review chain (review only) |
+| `/deep-analysis` | Deep project/subsystem analysis |
 
 ## Key Architectural Decisions
 

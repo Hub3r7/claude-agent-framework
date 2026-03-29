@@ -11,6 +11,12 @@ Replace all `[PROJECT-SPECIFIC]` placeholder sections with concrete, project-spe
 
 Run bootstrap when `CLAUDE.md` still contains `[PROJECT-SPECIFIC]` placeholders or the user says "bootstrap".
 
+## File language rule
+
+**All file content is always written in English** — regardless of what communication language the user prefers. This applies to: `CLAUDE.md`, all agent `.md` files, `project-context.md`, `bootstrap-protocol.md`, `.agentNotes/`, and any other file created or modified during bootstrap or normal operation.
+
+The communication language (what the orchestrator says to the user) is separate and is determined in Phase 0 below.
+
 ## Bootstrap phases
 
 ### Phase 1 — Research Context Discovery (orchestrator ↔ user)

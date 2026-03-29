@@ -2,6 +2,7 @@
 name: researcher
 description: Research execution specialist. Use for data collection, literature review, source evaluation, evidence gathering, or systematic search.
 model: opus
+maxTurns: 15
 tools:
   - Read
   - Write

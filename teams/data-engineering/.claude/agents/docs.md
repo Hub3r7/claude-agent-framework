@@ -2,6 +2,7 @@
 name: docs
 description: Documentation specialist. Use when writing data dictionaries, pipeline docs, lineage documentation, runbooks, or any data project documentation.
 model: sonnet
+maxTurns: 10
 tools:
   - Read
   - Write

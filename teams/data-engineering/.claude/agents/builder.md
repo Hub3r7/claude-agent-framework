@@ -2,6 +2,7 @@
 name: builder
 description: ETL/ELT implementation specialist. Use when building pipelines, writing transformations, implementing data loads, creating source connectors, or fixing pipeline issues.
 model: opus
+maxTurns: 15
 tools:
   - Read
   - Write

@@ -2,6 +2,7 @@
 name: developer
 description: Implementation specialist. Use when building new components, adding features, writing library code, or fixing implementation issues.
 model: opus
+maxTurns: 15
 tools:
   - Read
   - Write
@@ -102,7 +103,7 @@ When your work would benefit from another agent's expertise, include a HANDOFF s
 
 ### HANDOFF
 
-- **To:** <agent-name> (one of: architect, developer, quality-gate, hunter, defender, docs)
+- **To:** <agent-name> (one of: architect, ui-designer, developer, quality-gate, hunter, defender, docs)
 - **Task:** <one-sentence description of what the next agent should do>
 - **Priority:** high | medium | low
 - **Context:** <key findings, file paths, decisions — everything the next agent needs>

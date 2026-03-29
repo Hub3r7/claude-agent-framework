@@ -1,4 +1,4 @@
-# Claude Agent Framework
+# Claude Code Orchestration Template
 
 A collection of markdown-defined agent teams for Claude Code. Each team adds structured review chains, tiered escalation, and quality gates to a specific workflow domain. No code to maintain — everything is in `CLAUDE.md` and `.claude/` files.
 
@@ -13,7 +13,7 @@ A collection of markdown-defined agent teams for Claude Code. Each team adds str
 
 | Team | Domain | Agents | Use case |
 |------|--------|--------|----------|
-| [software-development](teams/software-development/) | Software engineering | architect, developer, quality-gate, hunter, defender, docs | Building and maintaining software projects |
+| [software-development](teams/software-development/) | Software engineering | architect, ui-designer, developer, quality-gate, hunter, defender, docs | Building and maintaining software projects |
 | [devops-sre](teams/devops-sre/) | Infrastructure & operations | architect, builder, reviewer, monitor, incident, security, docs | IaC, deployment, monitoring, incident response |
 | [data-engineering](teams/data-engineering/) | Data pipelines & analytics | architect, builder, quality, analyst, security, optimizer, docs | ETL/ELT, data quality, pipeline development |
 | [research-analysis](teams/research-analysis/) | Research & synthesis | planner, researcher, analyst, critic, visualizer, docs | Literature review, data analysis, reports |
@@ -26,22 +26,27 @@ A collection of markdown-defined agent teams for Claude Code. Each team adds str
 
    ```bash
    # Clone the framework
-   git clone https://github.com/Hub3r7/claude-agent-framework.git
+   git clone https://github.com/Hub3r7/claude-code-orchestration-template.git
 
    # Copy team files to your project (replace TEAM with your choice)
    TEAM=software-development
-   cp claude-agent-framework/teams/$TEAM/CLAUDE.md /path/to/your/project/
-   cp -r claude-agent-framework/teams/$TEAM/.claude /path/to/your/project/
+   cp claude-code-orchestration-template/teams/$TEAM/CLAUDE.md /path/to/your/project/
+   cp -r claude-code-orchestration-template/teams/$TEAM/.claude /path/to/your/project/
    ```
 
-   You need three things in your project root:
+   You need these in your project root:
    - `CLAUDE.md` — orchestrator rules and project config
    - `.claude/agents/` — agent definitions
    - `.claude/docs/` — bootstrap protocol and project context template
+   - `.claude/skills/` — slash-command skills for the orchestrator
+   - `.claude/hooks/` — lifecycle hook scripts
+   - `.claude/rules/` — path-conditional rules
 
-3. **Open Claude Code** in your project and say:
+   Optionally, copy `settings.template.json` to `.claude/settings.json` to enable hooks.
+
+3. **Open Claude Code** in your project and run:
    ```
-   bootstrap this project
+   /bootstrap
    ```
 
 4. **Answer the orchestrator's questions.** It will:
@@ -66,6 +71,10 @@ Every team follows the same core architecture:
 
 **Agent notes** — Agents accumulate knowledge across sessions through `.agentNotes/`. Notes are subordinate to `CLAUDE.md` (never override rules) but provide working memory that makes agents more effective over time.
 
+**Skills** — Every team includes slash-command skills (`/bootstrap`, `/tier-check`, `/chain-metrics`, `/commit`, `/push`, `/re-review`, `/deep-analysis`) that automate common orchestrator workflows.
+
+**Safety hooks** — Optional PreToolUse hooks block destructive git operations (force-push, reset --hard, etc.) before they execute.
+
 ## Team structure
 
 Every team directory contains:
@@ -81,6 +90,13 @@ teams/<team-name>/
     docs/
       bootstrap-protocol.md          → Bootstrap conversation protocol
       project-context.md             → Session orientation template
+    skills/
+      <skill-name>/SKILL.md          → Slash-command skills for the orchestrator
+    hooks/
+      <hook-script>.sh               → Lifecycle hook scripts (PreToolUse, etc.)
+    rules/
+      <rule>.md                      → Path-conditional rules (lazy-loaded)
+    settings.template.json           → Recommended hooks/settings configuration
 ```
 
 ## Choosing a team
@@ -96,7 +112,7 @@ Each team is **completely standalone**. You only need the files from one team �
 
 ## Re-bootstrap
 
-If your project evolves significantly, say "re-bootstrap" and the orchestrator will update the project-specific sections while preserving what still applies.
+If your project evolves significantly, run `/bootstrap` again and the orchestrator will update the project-specific sections while preserving what still applies.
 
 ## Building your own team
 
