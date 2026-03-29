@@ -1,6 +1,6 @@
 # Claude Code Orchestration Template
 
-A collection of markdown-defined agent teams for Claude Code. Each team adds structured review chains, tiered escalation, and quality gates to a specific workflow domain. No code to maintain — everything is in `CLAUDE.md` and `.claude/` files.
+A drop-in orchestration template for Claude Code. Copy a team into your project and get structured review chains, tiered escalation, and quality gates for your workflow domain — without writing any code. Everything lives in `CLAUDE.md` and `.claude/` files.
 
 > **Requires Claude Code.** This framework uses Claude Code's sub-agent system
 > (`.claude/agents/*.md` and `CLAUDE.md`). It does not work with other AI tools or IDEs.
@@ -50,6 +50,7 @@ A collection of markdown-defined agent teams for Claude Code. Each team adds str
    ```
 
 4. **Answer the orchestrator's questions.** It will:
+   - Ask your preferred communication language (all file content is always written in English)
    - Learn about your project/organization/context
    - Discuss model assignment (Opus/Sonnet/Haiku) for each agent to optimize costs
    - Fill all `[PROJECT-SPECIFIC]` sections in `CLAUDE.md` and all agent files
@@ -69,11 +70,15 @@ Every team follows the same core architecture:
 
 **Bootstrap customization** — Generic `[PROJECT-SPECIFIC]` placeholders are replaced through a structured conversation, not a config file. Agents become specialists in your specific context.
 
-**Agent notes** — Agents accumulate knowledge across sessions through `.agentNotes/`. Notes are subordinate to `CLAUDE.md` (never override rules) but provide working memory that makes agents more effective over time.
+**Agent notes** — Agents accumulate knowledge across sessions through `.agentNotes/<agent>/notes.md`. Notes are subordinate to `CLAUDE.md` (never override rules) but provide working memory that makes agents more effective over time. Read-only agents cannot write files directly — they include a `## NOTES UPDATE` section in their output and the orchestrator persists it on their behalf.
 
 **Skills** — Every team includes slash-command skills (`/bootstrap`, `/tier-check`, `/chain-metrics`, `/commit`, `/push`, `/re-review`, `/deep-analysis`) that automate common orchestrator workflows.
 
+**Role separation** — Agents have non-overlapping responsibilities. In `software-development` for example: `quality-gate` checks correctness and conventions, `hunter` does adversarial attack analysis, `defender` assesses system hardening. Each agent has an explicit "not in scope" boundary.
+
 **Safety hooks** — Optional PreToolUse hooks block destructive git operations (force-push, reset --hard, etc.) before they execute.
+
+**Read-only enforcement** — Review agents (those without Write/Edit in their tool list) also have `disallowedTools: [Edit, Write, Bash]` to prevent file modification through any means, including shell redirection.
 
 ## Team structure
 
