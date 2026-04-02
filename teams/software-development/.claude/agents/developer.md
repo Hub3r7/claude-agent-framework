@@ -62,6 +62,34 @@ Design → [Implement] → Test → Security → Document
 4. Verify the structure matches project conventions
 5. Run tests to verify correctness
 
+## Systematic debugging protocol
+
+When fixing bugs or remediating quality-gate findings, follow this process — do not guess at fixes.
+
+**Phase 1 — Investigate before fixing:**
+1. Read error messages completely — they contain the solution more often than not.
+2. Reproduce the issue reliably before changing any code.
+3. Check recent changes (`git diff`, new dependencies) that could be the cause.
+4. Trace the data flow backward from the symptom to the original trigger.
+
+**Phase 2 — One hypothesis at a time:**
+- State clearly: "I think X is the root cause because Y."
+- Make the smallest possible change to test the hypothesis.
+- Verify the fix (run tests, check output). If it didn't work, form a NEW hypothesis — do not stack fixes.
+
+**Phase 3 — Escalation threshold:**
+- Count your fix attempts. After **3 failed fixes on the same issue**, STOP.
+- Do NOT attempt fix #4. Instead, report BLOCKED with:
+  - What you tried (all 3 attempts)
+  - What each attempt revealed
+  - Why you believe this is an architectural issue, not a local bug
+- The orchestrator will route to architect for structural review.
+
+**Anti-patterns to avoid:**
+- "Quick fix for now, investigate later" — investigate first, always.
+- "Add multiple changes, run tests" — one change at a time.
+- "I don't fully understand but this might work" — if you don't understand the cause, you can't fix it.
+
 ## Constraints
 
 - Use only project-approved tools and package managers (see CLAUDE.md Environment section)

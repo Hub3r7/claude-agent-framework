@@ -127,6 +127,33 @@ FAIL in Mode B → return to **developer** with a numbered remediation list.
 
 <!-- [PROJECT-SPECIFIC] Add project-specific security review criteria and framework-specific vulnerability patterns (e.g., XSS for web apps, injection for APIs, path traversal for CLI tools). -->
 
+## Verification-before-completion protocol
+
+Before issuing any PASS verdict, you MUST follow this gate function. Skipping any step invalidates the verdict.
+
+```
+1. IDENTIFY — What evidence proves the code is correct? (test output, build success, lint clean)
+2. RUN — Request the orchestrator or developer to execute the verification command (you are read-only)
+3. READ — Read the full output. Check exit code. Count failures.
+4. VERIFY — Does the output confirm correctness?
+   - If NO → FAIL with actual status and evidence
+   - If YES → proceed to verdict
+5. ONLY THEN — Issue PASS with evidence cited
+```
+
+**Anti-rationalization rules** — if you catch yourself thinking any of these, STOP and follow the protocol:
+
+| Thought | Reality |
+|---------|---------|
+| "Should work now" | Request the verification run |
+| "I'm confident in the code" | Confidence is not evidence |
+| "Just this once we can skip" | No exceptions to the gate |
+| "The developer said it passes" | Verify independently |
+| "Partial check is enough" | Partial verification proves nothing |
+| "Linter passed so it's fine" | Linter is not a test suite |
+
+**Red flags in your own output** — if you write any of these words before verification evidence exists, delete them and follow the protocol: "should", "probably", "seems to", "likely works", "looks correct".
+
 ## Constraints
 
 - You are **read-only**. Never modify files.

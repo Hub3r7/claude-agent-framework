@@ -1,0 +1,623 @@
+/* ══════════════════════════════════════════════════════════════
+   CLAUDE CODE CONTROL HUB — Terminal Theme
+   Inspired by IBM 3270 / Ubuntu Terminal
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg: #000000;
+  --fg: #00ff00;
+  --cyan: #00ccff;
+  --amber: #ffaa00;
+  --red: #ff3333;
+  --dim: #008800;
+  --dim2: #005500;
+  --border: rgba(0, 255, 0, 0.3);
+  --border-bright: rgba(0, 255, 0, 0.6);
+  --glow: rgba(0, 255, 0, 0.5);
+  --glow-cyan: rgba(0, 204, 255, 0.4);
+  --panel-bg: rgba(0, 255, 0, 0.02);
+  --input-bg: rgba(0, 255, 0, 0.05);
+  --font: 'IBM Plex Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  --font-size: 13px;
+  --line-height: 1.5;
+}
+
+/* ── Reset ── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Base ── */
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+}
+
+/* ── Scanline overlay ── */
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px,
+    rgba(0, 0, 0, 0.12) 3px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── App Layout ── */
+
+#app {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  height: 100vh;
+  gap: 0;
+}
+
+/* ── Header ── */
+
+.header {
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--panel-bg);
+}
+
+.header-logo {
+  white-space: pre;
+  font-size: 11px;
+  line-height: 1.2;
+  color: var(--fg);
+  text-shadow: 0 0 8px var(--glow);
+}
+
+.header-info {
+  text-align: right;
+  font-size: 12px;
+}
+
+.header-info .label {
+  color: var(--dim);
+}
+
+.header-info .value {
+  color: var(--fg);
+  text-shadow: 0 0 5px var(--glow);
+}
+
+.header-info .value.cyan {
+  color: var(--cyan);
+  text-shadow: 0 0 5px var(--glow-cyan);
+}
+
+/* ── Chain Pipeline ── */
+
+.chain-bar {
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  overflow-x: auto;
+  background: var(--panel-bg);
+}
+
+.chain-label {
+  color: var(--dim);
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.chain-agent {
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  white-space: nowrap;
+  transition: all 0.3s;
+}
+
+.chain-agent.done {
+  color: var(--fg);
+  border-color: var(--fg);
+  opacity: 0.7;
+}
+
+.chain-agent.done::before {
+  content: '✓ ';
+}
+
+.chain-agent.active {
+  color: var(--fg);
+  border-color: var(--fg);
+  background: rgba(0, 255, 0, 0.1);
+  text-shadow: 0 0 5px var(--glow);
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.chain-agent.active::before {
+  content: '► ';
+}
+
+.chain-agent.pending {
+  color: var(--dim);
+  border-color: var(--dim2);
+}
+
+.chain-agent.fail {
+  color: var(--red);
+  border-color: var(--red);
+}
+
+.chain-agent.fail::before {
+  content: '✗ ';
+}
+
+.chain-arrow {
+  color: var(--dim);
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(0, 255, 0, 0.1); }
+  50% { box-shadow: 0 0 12px rgba(0, 255, 0, 0.3); }
+}
+
+/* ── Main Area ── */
+
+.main-area {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 0;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Panel ── */
+
+.panel {
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.panel-title {
+  padding: 4px 10px;
+  background: rgba(0, 255, 0, 0.06);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--dim);
+  flex-shrink: 0;
+}
+
+.panel-body {
+  padding: 8px 10px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ── Terminal Panel ── */
+
+.terminal-panel {
+  border-right: 1px solid var(--border);
+}
+
+.terminal-panel .panel-body {
+  padding: 0;
+  position: relative;
+}
+
+#terminal-container {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── Right Panels ── */
+
+.right-panels {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 0;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Tabs ── */
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.tab {
+  padding: 4px 12px;
+  font-size: 11px;
+  color: var(--dim);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: var(--font);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  color: var(--fg);
+}
+
+.tab.active {
+  color: var(--fg);
+  border-bottom-color: var(--fg);
+  text-shadow: 0 0 5px var(--glow);
+}
+
+.tab-content {
+  display: none;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ── Cost Ledger ── */
+
+.cost-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.cost-table th {
+  text-align: left;
+  color: var(--dim);
+  font-weight: normal;
+  padding: 2px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.cost-table td {
+  padding: 2px 8px;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.08);
+}
+
+.cost-table .number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.cost-table .total-row {
+  border-top: 1px solid var(--border-bright);
+  color: var(--fg);
+  text-shadow: 0 0 3px var(--glow);
+}
+
+/* ── Verdicts ── */
+
+.verdict-entry {
+  padding: 3px 0;
+  font-size: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+.verdict-pass {
+  color: var(--fg);
+}
+
+.verdict-fail {
+  color: var(--red);
+}
+
+.verdict-agent {
+  color: var(--cyan);
+  min-width: 90px;
+}
+
+.verdict-idx {
+  color: var(--dim);
+  min-width: 20px;
+}
+
+/* ── Task Panel ── */
+
+.task-info {
+  font-size: 12px;
+}
+
+.task-info .field {
+  margin-bottom: 4px;
+}
+
+.task-info .field-label {
+  color: var(--dim);
+  display: inline-block;
+  min-width: 60px;
+}
+
+.task-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Buttons ── */
+
+.btn {
+  padding: 4px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: rgba(0, 255, 0, 0.1);
+  border-color: var(--fg);
+  text-shadow: 0 0 5px var(--glow);
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.15);
+}
+
+.btn:active {
+  background: rgba(0, 255, 0, 0.2);
+}
+
+.btn.primary {
+  border-color: var(--fg);
+}
+
+.btn.danger {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.btn.danger:hover {
+  background: rgba(255, 51, 51, 0.1);
+  box-shadow: 0 0 8px rgba(255, 51, 51, 0.15);
+}
+
+/* ── Verification Panel ── */
+
+.verification-steps {
+  font-size: 12px;
+}
+
+.verification-step {
+  padding: 3px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.verification-step .step-check {
+  width: 16px;
+  color: var(--dim);
+}
+
+.verification-step.done .step-check {
+  color: var(--fg);
+}
+
+.verification-step.done .step-check::after {
+  content: '■';
+}
+
+.verification-step:not(.done) .step-check::after {
+  content: '□';
+}
+
+.verification-step .step-name {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+.anti-rationalization {
+  margin-top: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+}
+
+.anti-rationalization .title {
+  color: var(--amber);
+  font-size: 11px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.anti-rationalization .entry {
+  font-size: 11px;
+  padding: 2px 0;
+}
+
+.anti-rationalization .excuse {
+  color: var(--red);
+}
+
+.anti-rationalization .reality {
+  color: var(--fg);
+}
+
+/* ── Stuck Indicator ── */
+
+.stuck-banner {
+  display: none;
+  padding: 6px 16px;
+  background: rgba(255, 170, 0, 0.1);
+  border: 1px solid var(--amber);
+  color: var(--amber);
+  font-size: 12px;
+  text-align: center;
+  animation: stuck-flash 1.5s ease-in-out infinite;
+}
+
+.stuck-banner.visible {
+  display: block;
+}
+
+@keyframes stuck-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ── Notes Viewer ── */
+
+.notes-content {
+  font-size: 12px;
+  white-space: pre-wrap;
+  color: var(--fg);
+  opacity: 0.9;
+}
+
+.notes-agent-select {
+  margin-bottom: 8px;
+}
+
+.notes-agent-select select {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  font-family: var(--font);
+  font-size: 12px;
+}
+
+/* ── Status Bar ── */
+
+.status-bar {
+  padding: 4px 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  background: var(--panel-bg);
+}
+
+.status-bar .status-left {
+  color: var(--fg);
+}
+
+.status-bar .status-right {
+  display: flex;
+  gap: 16px;
+}
+
+.status-bar .status-item {
+  color: var(--dim);
+}
+
+.status-bar .status-item .value {
+  color: var(--fg);
+}
+
+.ws-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  transition: background 0.3s;
+}
+
+.ws-indicator.connected {
+  background: var(--fg);
+  box-shadow: 0 0 6px var(--glow);
+}
+
+/* ── Input ── */
+
+input[type="text"], textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 12px;
+  padding: 4px 8px;
+  outline: none;
+}
+
+input[type="text"]:focus, textarea:focus {
+  border-color: var(--fg);
+  box-shadow: 0 0 4px rgba(0, 255, 0, 0.2);
+}
+
+/* ── Select ── */
+
+select {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  font-family: var(--font);
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+select:focus {
+  border-color: var(--fg);
+  outline: none;
+}
+
+/* ── Scrollbar ── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--dim2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--dim);
+}
+
+/* ── Utility ── */
+
+.text-cyan { color: var(--cyan); }
+.text-amber { color: var(--amber); }
+.text-red { color: var(--red); }
+.text-dim { color: var(--dim); }
+.text-green { color: var(--fg); }
+.text-glow { text-shadow: 0 0 5px var(--glow); }
+
+.hidden { display: none !important; }
+
+.mono { font-variant-numeric: tabular-nums; }

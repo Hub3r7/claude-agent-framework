@@ -1,0 +1,18 @@
+{
+  "name": "claude-code-control-hub",
+  "version": "0.1.0",
+  "description": "Control hub for Claude Code Orchestration Template",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "test": "node --test tests/"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "optionalDependencies": {
+    "node-pty": "^1.0.0"
+  }
+}

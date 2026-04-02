@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CLAUDE CODE CONTROL HUB</title>
+  <link rel="stylesheet" href="/css/terminal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-logo" id="header-logo"></div>
+      <div class="header-info">
+        <div><span class="label">project: </span><span class="value cyan" id="header-project">—</span></div>
+        <div><span class="label">tier: </span><span class="value" id="header-tier">—</span></div>
+        <div><span class="label">agent: </span><span class="value cyan" id="header-agent">—</span></div>
+      </div>
+    </div>
+
+    <!-- Chain Pipeline -->
+    <div class="chain-bar" id="chain-bar">
+      <span class="chain-label">CHAIN</span>
+      <span class="text-dim" id="chain-empty">no active chain</span>
+    </div>
+
+    <!-- Stuck Banner -->
+    <div class="stuck-banner" id="stuck-banner">
+      ⚠ STUCK DETECTED: <span id="stuck-reason"></span>
+    </div>
+
+    <!-- Main Area -->
+    <div class="main-area">
+      <!-- Terminal -->
+      <div class="panel terminal-panel">
+        <div class="panel-title">terminal</div>
+        <div class="panel-body">
+          <div id="terminal-container"></div>
+        </div>
+      </div>
+
+      <!-- Right Panels -->
+      <div class="right-panels">
+        <!-- Top Right: Tabbed Panel -->
+        <div class="panel">
+          <div class="tabs">
+            <button class="tab active" data-tab="cost">Cost</button>
+            <button class="tab" data-tab="verdicts">Verdicts</button>
+            <button class="tab" data-tab="verification">Checks</button>
+          </div>
+          <div class="tab-content active" id="tab-cost">
+            <div class="panel-body">
+              <table class="cost-table">
+                <thead>
+                  <tr>
+                    <th>Agent</th>
+                    <th>Model</th>
+                    <th class="number">Tokens</th>
+                    <th class="number">Cost</th>
+                    <th>Verdict</th>
+                  </tr>
+                </thead>
+                <tbody id="cost-body">
+                  <tr><td colspan="5" class="text-dim">no data yet</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-verdicts">
+            <div class="panel-body">
+              <div id="verdicts-list">
+                <span class="text-dim">no verdicts yet</span>
+              </div>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-verification">
+            <div class="panel-body">
+              <div class="task-info">
+                <div class="field"><span class="field-label">Shell checks:</span> <span id="verify-source" class="text-dim">not discovered</span></div>
+                <div class="field"><span class="field-label">Commands:</span></div>
+                <div id="verify-commands" class="text-dim" style="margin-left: 10px; font-size: 11px;">—</div>
+                <div class="field" style="margin-top: 8px"><span class="field-label">Last run:</span> <span id="verify-result" class="text-dim">—</span></div>
+                <div class="field"><span class="field-label">Checks:</span></div>
+                <div id="verify-checks" style="margin-left: 10px; font-size: 11px;">—</div>
+              </div>
+              <div style="margin-top: 12px; border-top: 1px solid var(--border); padding-top: 8px;">
+                <div style="font-size: 11px; color: var(--dim); text-transform: uppercase; margin-bottom: 4px;">escalation monitor</div>
+                <div class="field"><span class="field-label">Fix attempts:</span> <span id="verify-fixes">0</span></div>
+                <div class="field"><span class="field-label">Threshold:</span> <span class="text-dim">3 (routes to architect)</span></div>
+                <div id="verify-escalation" class="hidden" style="margin-top: 6px; padding: 4px 8px; border: 1px solid var(--amber); color: var(--amber); font-size: 11px;">
+                  ⚠ ESCALATION: 3+ failures — architectural review required
+                </div>
+              </div>
+              <div style="margin-top: 12px;">
+                <button class="btn" id="btn-run-verify">Run Verification</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Right: Tabbed Panel -->
+        <div class="panel">
+          <div class="tabs">
+            <button class="tab active" data-tab="task">Task</button>
+            <button class="tab" data-tab="notes">Notes</button>
+            <button class="tab" data-tab="workflow">Workflow</button>
+          </div>
+          <div class="tab-content active" id="tab-task">
+            <div class="panel-body">
+              <div class="task-info" id="task-info">
+                <div class="field"><span class="field-label">ID:</span> <span id="task-id" class="text-cyan">—</span></div>
+                <div class="field"><span class="field-label">Task:</span> <span id="task-summary">—</span></div>
+                <div class="field"><span class="field-label">Tier:</span> <span id="task-tier">—</span></div>
+                <div class="field"><span class="field-label">Phase:</span> <span id="task-phase" class="text-cyan">—</span></div>
+              </div>
+              <div class="task-actions">
+                <button class="btn primary" id="btn-new-task">New Task</button>
+                <button class="btn primary" id="btn-start-chain">Start Chain</button>
+              </div>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-notes">
+            <div class="panel-body">
+              <div class="notes-agent-select">
+                <select id="notes-agent-select">
+                  <option value="">— select agent —</option>
+                  <option value="architect">architect</option>
+                  <option value="developer">developer</option>
+                  <option value="quality-gate">quality-gate</option>
+                  <option value="hunter">hunter</option>
+                  <option value="defender">defender</option>
+                  <option value="ui-designer">ui-designer</option>
+                  <option value="docs">docs</option>
+                </select>
+              </div>
+              <pre class="notes-content" id="notes-content">select an agent to view notes</pre>
+            </div>
+          </div>
+          <div class="tab-content" id="tab-workflow">
+            <div class="panel-body">
+              <div class="task-info" id="workflow-info">
+                <div class="field"><span class="field-label">Mode:</span> <span id="wf-mode">—</span></div>
+                <div class="field"><span class="field-label">Chain:</span> <span id="wf-chain" class="text-cyan">—</span></div>
+                <div class="field"><span class="field-label">Index:</span> <span id="wf-index">—</span></div>
+                <div class="field"><span class="field-label">Stuck:</span> <span id="wf-stuck">none</span></div>
+                <div class="field"><span class="field-label">Fixes:</span> <span id="wf-fixes">0</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <div class="status-left" id="status-text">ready</div>
+      <div class="status-right">
+        <span class="status-item">tokens: <span class="value" id="status-tokens">0</span></span>
+        <span class="status-item">cost: <span class="value" id="status-cost">€0.00</span></span>
+        <span class="status-item"><span class="ws-indicator" id="ws-indicator"></span> ws</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
+  <script type="module" src="/js/app.mjs"></script>
+</body>
+</html>
