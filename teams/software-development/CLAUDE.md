@@ -70,6 +70,31 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 - After every agent completes, check output for `## NOTES UPDATE` — if present, write the content to the agent's notes file
 - Verify acceptance criteria from each agent before invoking the next
 - Summarise results after the full chain completes, including a metrics table (use `/chain-metrics`)
+- **Write orchestra state at every chain step** — see Orchestra State Protocol below
+
+## Orchestra State Protocol
+
+The Control Hub UI monitors `.orchestra/` via file watcher. The orchestrator MUST call the update script at every chain step. This is mechanical — always do it, no exceptions.
+
+**Script:** `.orchestra/update.mjs` (relative to project root)
+
+```bash
+# Chain start — before invoking first agent
+node .orchestra/update.mjs chain-start '{"tier":2,"taskId":"T1234","summary":"task description","chain":["architect","quality-gate","developer","docs"]}'
+
+# After each agent completes
+node .orchestra/update.mjs verdict '{"agent":"architect","verdict":"PASS","tokens":12000,"durationMs":45000}'
+
+# Agent is BLOCKED
+node .orchestra/update.mjs blocked '{"agent":"developer"}'
+```
+
+**When to call:**
+- `chain-start` — immediately before invoking the first agent; use the actual tier chain from the Dev Cycle table
+- `verdict` — after every agent returns its RESULT; read token count from the Claude Code status bar; `durationMs` is approximate (seconds × 1000)
+- `blocked` — when an agent outputs BLOCKED and the chain cannot proceed
+
+The script handles chain advancement, stuck detection, ledger, and atomic writes automatically.
 
 **What Claude Code NEVER does:**
 - Does NOT design implementations — that is the architect's role
