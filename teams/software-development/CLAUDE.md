@@ -76,6 +76,21 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 
 The Control Hub UI runs at `http://localhost:3170`. The orchestrator MUST report state via the UI API at every chain step — this activates stuck detection, escalation, and cost tracking. This is mechanical — always do it, no exceptions.
 
+**Before first agent — register task and chain:**
+```bash
+# 1. Create/update task
+curl -s -X POST http://localhost:3170/api/task \
+  -H 'Content-Type: application/json' \
+  -d '{"summary":"task description","tier":2}' \
+  2>/dev/null; echo
+
+# 2. Start chain (pass exact chain the orchestrator decided on)
+curl -s -X POST http://localhost:3170/api/chain/start \
+  -H 'Content-Type: application/json' \
+  -d '{"taskId":"T1234","tier":2,"chain":["architect","quality-gate","developer","quality-gate","docs"]}' \
+  2>/dev/null; echo
+```
+
 **After each agent completes — report verdict + orchestrator running cost:**
 ```bash
 # 1. Report agent verdict
@@ -100,11 +115,10 @@ curl -s -X POST http://localhost:3170/api/chain/verdict \
 ```
 
 **When to call:**
-- Both calls after every agent — `verdict` first, then `ledger/entry` for orchestrator running total
-- Token counts: read from Claude Code status bar (the number shown after the model name)
-- `durationMs`: seconds × 1000 (approximate is fine)
+- `task` + `chain/start` — immediately after agreeing on tier/chain with the user, before invoking first agent
+- `verdict` + `ledger/entry` — after every agent; `verdict` first, then orchestrator running token count
+- Tokens: read from Claude Code status bar; `durationMs`: seconds × 1000 (approximate)
 - `model` field is auto-resolved from agent `.md` frontmatter — can be omitted
-- Chain start and task creation are managed via the UI (New Task → Start Chain buttons)
 - If UI is not running, skip silently (`2>/dev/null`) — never block on this
 
 The UI deduplicates orchestrator entries (always updates, never appends twice) and handles chain advancement, GSD stuck detection, Superpowers escalation, and atomic writes.
