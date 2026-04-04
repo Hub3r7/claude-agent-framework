@@ -176,6 +176,16 @@ body::after {
   flex-shrink: 0;
 }
 
+.chain-phase-done {
+  font-size: 10px;
+  color: var(--dim);
+  text-transform: uppercase;
+  border: 1px solid var(--dim2);
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-right: 6px;
+}
+
 @keyframes pulse {
   0%, 100% { box-shadow: 0 0 4px rgba(0, 255, 0, 0.1); }
   50% { box-shadow: 0 0 12px rgba(0, 255, 0, 0.3); }
@@ -344,6 +354,15 @@ body::after {
 .history-tier {
   font-weight: bold;
 }
+.history-summary {
+  font-size: 11px;
+  color: var(--fg);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .history-chain {
   font-size: 11px;
   line-height: 1.6;

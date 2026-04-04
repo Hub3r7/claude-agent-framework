@@ -214,12 +214,14 @@ function renderChainBar() {
     return;
   }
 
-  let html = '<span class="chain-label">CHAIN</span>';
+  const completed = w.phase === 'completed';
+  let html = `<span class="chain-label">CHAIN</span>`;
+  if (completed) html += `<span class="chain-phase-done">done</span>`;
   w.chain.forEach((agent, i) => {
     if (i > 0) html += '<span class="chain-arrow">→</span>';
     let cls = 'pending';
     if (i < w.chainIndex) cls = 'done';
-    else if (i === w.chainIndex) cls = 'active';
+    else if (i === w.chainIndex && !completed) cls = 'active';
     // Check for fail
     const verdict = (state.verdicts || []).find(v => v.agent === agent && v.chainStep === i);
     if (verdict && verdict.verdict === 'FAIL') cls = 'fail';
@@ -292,6 +294,7 @@ function renderHistory() {
     }).join('<span class="text-dim"> → </span>');
     const status = chain.completedAt ? 'done' : 'running';
     const statusCls = chain.completedAt ? 'text-dim' : 'text-cyan';
+    const summary = chain.taskSummary ? `<div class="history-summary">${chain.taskSummary}</div>` : '';
     html += `<div class="history-entry">
       <div class="history-meta">
         <span class="text-dim">${date}</span>
@@ -299,6 +302,7 @@ function renderHistory() {
         <span class="${statusCls}">${status}</span>
         <span class="number">${formatCost(chain.totals?.estimatedCostEur)}</span>
       </div>
+      ${summary}
       <div class="history-chain">${agents || '<span class="text-dim">—</span>'}</div>
     </div>`;
   }

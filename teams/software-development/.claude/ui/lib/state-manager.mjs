@@ -311,7 +311,7 @@ export function createStateManager() {
         if (wf.workflow.phase === 'completed') {
           currentChain.completedAt = new Date().toISOString();
           await saveLedger(ledger);
-          await appendHistory(currentChain);
+          await appendHistory(currentChain, wf.task?.summary);
         } else {
           await saveLedger(ledger);
         }
@@ -344,12 +344,13 @@ export function createStateManager() {
 
   // --- History log (append-only) ---
 
-  async function appendHistory(chain) {
+  async function appendHistory(chain, taskSummary) {
     try {
       const historyPath = join(getStateDir(), '..', 'history.jsonl');
       const line = JSON.stringify({
         chainId: chain.id,
         task: chain.task,
+        taskSummary: taskSummary || null,
         tier: chain.tier,
         startedAt: chain.startedAt,
         completedAt: chain.completedAt || new Date().toISOString(),
@@ -397,7 +398,8 @@ export function createStateManager() {
 
     // Append to history.jsonl — orchestrator reports at chain end
     if (agent === 'orchestrator') {
-      await appendHistory(currentChain);
+      const wf = await getWorkflow();
+      await appendHistory(currentChain, wf.task?.summary);
     }
 
     return { ok: true, agent, costEur };
