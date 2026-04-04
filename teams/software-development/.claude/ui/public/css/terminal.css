@@ -327,6 +327,28 @@ body::after {
   color: var(--accent);
 }
 
+/* ── History ── */
+
+.history-entry {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.history-entry:last-child { border-bottom: none; }
+
+.history-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  margin-bottom: 3px;
+}
+.history-tier {
+  font-weight: bold;
+}
+.history-chain {
+  font-size: 11px;
+  line-height: 1.6;
+}
+
 /* ── Verdicts ── */
 
 .verdict-entry {

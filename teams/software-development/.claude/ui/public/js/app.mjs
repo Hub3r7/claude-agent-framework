@@ -191,6 +191,7 @@ function renderAll() {
   renderHeaderInfo();
   renderChainBar();
   renderCostTable();
+  renderHistory();
   renderTaskInfo();
   renderWorkflow();
   renderStuck();
@@ -270,6 +271,38 @@ function renderCostTable() {
     </tr>`;
   }
   body.innerHTML = html;
+}
+
+function renderHistory() {
+  const el = $('#history-list');
+  const chains = state.ledger?.chains;
+  if (!chains || chains.length === 0) {
+    el.innerHTML = '<span class="text-dim">no history yet</span>';
+    return;
+  }
+
+  // Most recent first, skip current (last) chain if still running
+  const list = [...chains].reverse();
+  let html = '';
+  for (const chain of list) {
+    const date = chain.startedAt ? new Date(chain.startedAt).toLocaleString('cs-CZ', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+    const agents = (chain.entries || []).map(e => {
+      const cls = e.verdict === 'PASS' ? 'verdict-pass' : e.verdict === 'FAIL' ? 'verdict-fail' : 'text-dim';
+      return `<span class="${cls}">${e.agent}</span>`;
+    }).join('<span class="text-dim"> → </span>');
+    const status = chain.completedAt ? 'done' : 'running';
+    const statusCls = chain.completedAt ? 'text-dim' : 'text-cyan';
+    html += `<div class="history-entry">
+      <div class="history-meta">
+        <span class="text-dim">${date}</span>
+        <span class="history-tier text-dim">T${chain.tier ?? '?'}</span>
+        <span class="${statusCls}">${status}</span>
+        <span class="number">${formatCost(chain.totals?.estimatedCostEur)}</span>
+      </div>
+      <div class="history-chain">${agents || '<span class="text-dim">—</span>'}</div>
+    </div>`;
+  }
+  el.innerHTML = html;
 }
 
 function renderTaskInfo() {
