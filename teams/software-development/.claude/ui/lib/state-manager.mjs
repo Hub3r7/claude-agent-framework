@@ -295,7 +295,7 @@ export function createStateManager() {
       const ledger = await getLedger();
       const currentChain = ledger.chains[ledger.chains.length - 1];
       if (currentChain) {
-        const resolvedModel = await resolveAgentModel(agent, model);
+        const resolvedModel = await getAgentModel(agent, model);
         const costEur = calculateCost(tokens || 0, resolvedModel);
         currentChain.entries.push({
           agent,
@@ -343,44 +343,46 @@ export function createStateManager() {
     }
   })();
 
-  // --- Agent model lookup (reads frontmatter from agent .md files) ---
+  // --- Agent model lookup ---
+  // Reads all agent models once at first use, then uses cache.
 
   const agentModelCache = {};
+  let agentModelsCacheLoaded = false;
 
-  async function resolveAgentModel(agent, provided) {
+  async function getAgentModel(agent, provided) {
     if (provided && provided !== 'sonnet') return provided;
-    if (agentModelCache[agent]) return agentModelCache[agent];
-    try {
-      const agentFile = join(getAgentsDir(), `${agent}.md`);
-      const content = await readFile(agentFile, 'utf-8');
-      const match = content.match(/^model:\s*(\S+)/m);
-      if (match) {
-        agentModelCache[agent] = match[1];
-        return match[1];
-      }
-    } catch {}
-    return provided || 'sonnet';
+    if (!agentModelsCacheLoaded) {
+      agentModelsCacheLoaded = true;
+      try {
+        const { readdir } = await import('node:fs/promises');
+        const files = await readdir(getAgentsDir());
+        await Promise.all(files.filter(f => f.endsWith('.md')).map(async f => {
+          try {
+            const content = await readFile(join(getAgentsDir(), f), 'utf-8');
+            const match = content.match(/^model:\s*(\S+)/m);
+            if (match) agentModelCache[f.replace('.md', '')] = match[1];
+          } catch {}
+        }));
+      } catch {}
+    }
+    return agentModelCache[agent] || provided || 'sonnet';
   }
 
-  // --- History log (append-only) ---
+  // --- History log (append-only, fire-and-forget) ---
 
-  async function appendHistory(chain, taskSummary) {
-    try {
-      const historyPath = join(getStateDir(), '..', 'history.jsonl');
-      const line = JSON.stringify({
-        chainId: chain.id,
-        task: chain.task,
-        taskSummary: taskSummary || null,
-        tier: chain.tier,
-        startedAt: chain.startedAt,
-        completedAt: chain.completedAt || new Date().toISOString(),
-        entries: chain.entries,
-        totals: chain.totals,
-      });
-      await appendFile(historyPath, line + '\n', 'utf-8');
-    } catch {
-      // History write is best-effort — never block on failure
-    }
+  function appendHistory(chain, taskSummary) {
+    const historyPath = join(getStateDir(), '..', 'history.jsonl');
+    const line = JSON.stringify({
+      chainId: chain.id,
+      task: chain.task,
+      taskSummary: taskSummary || null,
+      tier: chain.tier,
+      startedAt: chain.startedAt,
+      completedAt: chain.completedAt || new Date().toISOString(),
+      entries: chain.entries,
+      totals: chain.totals,
+    });
+    appendFile(historyPath, line + '\n', 'utf-8').catch(() => {});
   }
 
   // --- Orchestrator / free-form ledger entry (no chain advancement) ---
@@ -391,10 +393,9 @@ export function createStateManager() {
     if (!currentChain) return { ok: false, reason: 'no active chain' };
 
     const { calculateCost } = await import('./cost-calculator.mjs');
-    const resolvedModel = await resolveAgentModel(agent, model);
+    const resolvedModel = await getAgentModel(agent, model);
     const costEur = calculateCost(tokens || 0, resolvedModel);
 
-    // Update existing entry for this agent if present, otherwise append
     const existing = currentChain.entries.findIndex(e => e.agent === agent);
     const entry = {
       agent,
@@ -416,13 +417,6 @@ export function createStateManager() {
     currentChain.totals.estimatedCostEur = currentChain.entries.reduce((s, e) => s + e.estimatedCostEur, 0);
 
     await saveLedger(ledger);
-
-    // Append to history.jsonl — orchestrator reports at chain end
-    if (agent === 'orchestrator') {
-      const wf = await getWorkflow();
-      await appendHistory(currentChain, wf.task?.summary);
-    }
-
     return { ok: true, agent, costEur };
   }
 
