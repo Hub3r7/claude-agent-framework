@@ -92,8 +92,17 @@ curl -s -X POST http://localhost:3170/api/chain/verdict \
   2>/dev/null; echo
 ```
 
+**Orchestrator own cost — report at chain end:**
+```bash
+curl -s -X POST http://localhost:3170/api/ledger/entry \
+  -H 'Content-Type: application/json' \
+  -d '{"agent":"orchestrator","tokens":5000,"durationMs":120000,"model":"sonnet"}' \
+  2>/dev/null; echo
+```
+
 **When to call:**
 - `verdict` — after every agent returns its RESULT; read token count from the Claude Code status bar; `durationMs` is approximate (seconds × 1000)
+- `ledger/entry` — once at the end of the full chain with orchestrator's own accumulated token count
 - Chain start and task creation are managed via the UI (New Task → Start Chain buttons)
 - If UI is not running, skip silently (`2>/dev/null`) — never block on this
 

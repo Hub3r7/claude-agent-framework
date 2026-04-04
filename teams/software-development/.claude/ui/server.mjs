@@ -94,6 +94,14 @@ async function handleApi(req, res, stateManager, cliBridge) {
       return;
     }
 
+    if (path === '/api/ledger/entry' && req.method === 'POST') {
+      const body = await readBody(req);
+      const result = await stateManager.addLedgerEntry(JSON.parse(body));
+      res.writeHead(200);
+      res.end(JSON.stringify(result));
+      return;
+    }
+
     if (path.startsWith('/api/notes') && req.method === 'GET') {
       const agent = path.split('/api/notes/')[1];
       const { readAgentNotes, listAgentNotes } = await import('./lib/agent-notes-reader.mjs');

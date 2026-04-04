@@ -309,11 +309,47 @@ export function createStateManager() {
     }
   })();
 
+  // --- Orchestrator / free-form ledger entry (no chain advancement) ---
+
+  async function addLedgerEntry({ agent, tokens, durationMs, model, verdict }) {
+    const ledger = await getLedger();
+    const currentChain = ledger.chains[ledger.chains.length - 1];
+    if (!currentChain) return { ok: false, reason: 'no active chain' };
+
+    const { calculateCost } = await import('./cost-calculator.mjs');
+    const costEur = calculateCost(tokens || 0, model || 'sonnet');
+
+    // Update existing entry for this agent if present, otherwise append
+    const existing = currentChain.entries.findIndex(e => e.agent === agent);
+    const entry = {
+      agent,
+      model: model || 'sonnet',
+      tokens: tokens || 0,
+      durationMs: durationMs || 0,
+      verdict: verdict || '—',
+      estimatedCostEur: costEur,
+      timestamp: new Date().toISOString(),
+    };
+    if (existing !== -1) {
+      currentChain.entries[existing] = entry;
+    } else {
+      currentChain.entries.push(entry);
+    }
+
+    currentChain.totals.tokens = currentChain.entries.reduce((s, e) => s + e.tokens, 0);
+    currentChain.totals.durationMs = currentChain.entries.reduce((s, e) => s + e.durationMs, 0);
+    currentChain.totals.estimatedCostEur = currentChain.entries.reduce((s, e) => s + e.estimatedCostEur, 0);
+
+    await saveLedger(ledger);
+    return { ok: true, agent, costEur };
+  }
+
   return {
     getFullState,
     createOrUpdateTask,
     startChain,
     recordVerdict,
+    addLedgerEntry,
     on: (event, handler) => emitter.on(event, handler),
   };
 }
