@@ -50,7 +50,9 @@ async function serveStatic(req, res) {
       'Cache-Control': 'no-cache',
     });
     res.end(content);
-  } catch {
+  } catch (err) {
+    const is404 = err.code === 'ENOENT' || err.message === 'Not a file';
+    if (!is404) console.error('[static]', filePath, err.message);
     res.writeHead(404, { 'Content-Type': 'text/plain' });
     res.end('Not Found');
   }
@@ -185,15 +187,15 @@ async function main() {
   try {
     const sm = await import('./lib/state-manager.mjs');
     stateManager = sm.createStateManager();
-  } catch {
-    console.log('[hub] state-manager not available yet, API endpoints will return errors');
+  } catch (err) {
+    console.error('[hub] state-manager failed to load:', err);
   }
 
   try {
     const cb = await import('./lib/cli-bridge.mjs');
     cliBridge = await cb.createCliBridge();
   } catch (err) {
-    console.log('[hub] cli-bridge not available yet, terminal will be inactive');
+    console.error('[hub] cli-bridge failed to load:', err);
   }
 
   // Log resolved project root
