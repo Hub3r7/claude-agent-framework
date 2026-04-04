@@ -121,7 +121,15 @@ export function createStateManager() {
       getWorkflow(), getLedger(), getVerification(),
     ]);
 
-    cache = { ...workflow, ledger, verification };
+    // Compute running project totals across all chains
+    const projectTotals = (ledger.chains || []).reduce((acc, c) => {
+      acc.tokens += c.totals?.tokens || 0;
+      acc.durationMs += c.totals?.durationMs || 0;
+      acc.estimatedCostEur += c.totals?.estimatedCostEur || 0;
+      return acc;
+    }, { tokens: 0, durationMs: 0, estimatedCostEur: 0 });
+
+    cache = { ...workflow, ledger, verification, projectTotals };
     cacheTime = now;
     return cache;
   }
@@ -165,10 +173,29 @@ export function createStateManager() {
 
   // --- Chain Operations ---
 
-  async function startChain({ taskId, tier }) {
+  async function loadProjectChains() {
+    try {
+      const chainsPath = join(getStateDir(), '..', 'chains.json');
+      const raw = await readFile(chainsPath, 'utf-8');
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
+  }
+
+  async function startChain({ taskId, tier, chain: customChain }) {
     const wf = await getWorkflow();
     const { getChainForTier } = await import('./chain-engine.mjs');
-    const chain = getChainForTier(tier);
+
+    // Use explicit chain if provided, otherwise check project chains.json, then defaults
+    let chain;
+    if (customChain && Array.isArray(customChain)) {
+      chain = customChain;
+    } else {
+      const projectChains = await loadProjectChains();
+      const overrides = projectChains.tiers || {};
+      chain = overrides[tier] ? [...overrides[tier]] : getChainForTier(tier);
+    }
 
     wf.workflow = {
       tier,

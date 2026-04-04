@@ -322,6 +322,11 @@ body::after {
   text-shadow: 0 0 3px var(--glow);
 }
 
+.cost-table .project-total-row {
+  border-top: 1px dashed var(--accent);
+  color: var(--accent);
+}
+
 /* ── Verdicts ── */
 
 .verdict-entry {

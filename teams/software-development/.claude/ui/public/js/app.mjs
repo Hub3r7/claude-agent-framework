@@ -249,10 +249,20 @@ function renderCostTable() {
   }
   if (currentChain.totals) {
     html += `<tr class="total-row">
-      <td>TOTAL</td>
+      <td>CHAIN TOTAL</td>
       <td></td>
       <td class="number">${formatTokens(currentChain.totals.tokens)}</td>
       <td class="number">${formatCost(currentChain.totals.estimatedCostEur)}</td>
+      <td></td>
+    </tr>`;
+  }
+  const pt = state.projectTotals;
+  if (pt && ledger.chains.length > 1) {
+    html += `<tr class="total-row project-total-row">
+      <td class="text-amber">PROJECT TOTAL</td>
+      <td class="text-dim">${ledger.chains.length} chains</td>
+      <td class="number text-amber">${formatTokens(pt.tokens)}</td>
+      <td class="number text-amber">${formatCost(pt.estimatedCostEur)}</td>
       <td></td>
     </tr>`;
   }
