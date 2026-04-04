@@ -76,11 +76,18 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 
 The Control Hub UI runs at `http://localhost:3170`. The orchestrator MUST report state via the UI API at every chain step — this activates stuck detection, escalation, and cost tracking. This is mechanical — always do it, no exceptions.
 
-**After each agent completes — report verdict:**
+**After each agent completes — report verdict + orchestrator running cost:**
 ```bash
+# 1. Report agent verdict
 curl -s -X POST http://localhost:3170/api/chain/verdict \
   -H 'Content-Type: application/json' \
-  -d '{"agent":"architect","verdict":"PASS","tokens":12000,"durationMs":45000,"model":"sonnet"}' \
+  -d '{"agent":"architect","verdict":"PASS","tokens":12000,"durationMs":45000}' \
+  2>/dev/null; echo
+
+# 2. Report orchestrator tokens so far (read from Claude Code status bar)
+curl -s -X POST http://localhost:3170/api/ledger/entry \
+  -H 'Content-Type: application/json' \
+  -d '{"agent":"orchestrator","tokens":3200,"durationMs":0,"model":"sonnet"}' \
   2>/dev/null; echo
 ```
 
@@ -88,25 +95,19 @@ curl -s -X POST http://localhost:3170/api/chain/verdict \
 ```bash
 curl -s -X POST http://localhost:3170/api/chain/verdict \
   -H 'Content-Type: application/json' \
-  -d '{"agent":"developer","verdict":"BLOCKED","tokens":8000,"durationMs":30000,"model":"sonnet"}' \
-  2>/dev/null; echo
-```
-
-**Orchestrator own cost — report at chain end:**
-```bash
-curl -s -X POST http://localhost:3170/api/ledger/entry \
-  -H 'Content-Type: application/json' \
-  -d '{"agent":"orchestrator","tokens":5000,"durationMs":120000,"model":"sonnet"}' \
+  -d '{"agent":"developer","verdict":"BLOCKED","tokens":8000,"durationMs":30000}' \
   2>/dev/null; echo
 ```
 
 **When to call:**
-- `verdict` — after every agent returns its RESULT; read token count from the Claude Code status bar; `durationMs` is approximate (seconds × 1000)
-- `ledger/entry` — once at the end of the full chain with orchestrator's own accumulated token count
+- Both calls after every agent — `verdict` first, then `ledger/entry` for orchestrator running total
+- Token counts: read from Claude Code status bar (the number shown after the model name)
+- `durationMs`: seconds × 1000 (approximate is fine)
+- `model` field is auto-resolved from agent `.md` frontmatter — can be omitted
 - Chain start and task creation are managed via the UI (New Task → Start Chain buttons)
 - If UI is not running, skip silently (`2>/dev/null`) — never block on this
 
-The UI handles chain advancement, GSD stuck detection (3-rule), Superpowers escalation, ledger, and atomic writes.
+The UI deduplicates orchestrator entries (always updates, never appends twice) and handles chain advancement, GSD stuck detection, Superpowers escalation, and atomic writes.
 
 **What Claude Code NEVER does:**
 - Does NOT design implementations — that is the architect's role
