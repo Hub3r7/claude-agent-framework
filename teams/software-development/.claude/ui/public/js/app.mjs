@@ -1,5 +1,5 @@
 import { WsClient } from './lib/ws-client.mjs';
-import { $, $$, el, formatTokens, formatCost } from './lib/dom-utils.mjs';
+import { $, $$, el, formatTokens, formatCost, formatDuration } from './lib/dom-utils.mjs';
 
 // --- State ---
 
@@ -191,7 +191,6 @@ function renderAll() {
   renderHeaderInfo();
   renderChainBar();
   renderCostTable();
-  renderVerdicts();
   renderTaskInfo();
   renderWorkflow();
   renderStuck();
@@ -232,19 +231,21 @@ function renderCostTable() {
   const body = $('#cost-body');
   const ledger = state.ledger;
   if (!ledger || !ledger.chains || ledger.chains.length === 0) {
-    body.innerHTML = '<tr><td colspan="5" class="text-dim">no data yet</td></tr>';
+    body.innerHTML = '<tr><td colspan="6" class="text-dim">no data yet</td></tr>';
     return;
   }
 
   const currentChain = ledger.chains[ledger.chains.length - 1];
   let html = '';
   for (const entry of currentChain.entries) {
+    const vCls = entry.verdict === 'PASS' ? 'verdict-pass' : entry.verdict === 'FAIL' ? 'verdict-fail' : 'text-dim';
     html += `<tr>
       <td class="text-cyan">${entry.agent}</td>
       <td class="text-dim">${entry.model || '—'}</td>
       <td class="number">${formatTokens(entry.tokens)}</td>
+      <td class="number text-dim">${formatDuration(entry.durationMs)}</td>
       <td class="number">${formatCost(entry.estimatedCostEur)}</td>
-      <td class="${entry.verdict === 'PASS' ? 'verdict-pass' : entry.verdict === 'FAIL' ? 'verdict-fail' : 'text-dim'}">${entry.verdict || '—'}</td>
+      <td class="${vCls}">${entry.verdict || '—'}</td>
     </tr>`;
   }
   if (currentChain.totals) {
@@ -252,6 +253,7 @@ function renderCostTable() {
       <td>CHAIN TOTAL</td>
       <td></td>
       <td class="number">${formatTokens(currentChain.totals.tokens)}</td>
+      <td class="number text-dim">${formatDuration(currentChain.totals.durationMs)}</td>
       <td class="number">${formatCost(currentChain.totals.estimatedCostEur)}</td>
       <td></td>
     </tr>`;
@@ -262,30 +264,12 @@ function renderCostTable() {
       <td class="text-amber">PROJECT TOTAL</td>
       <td class="text-dim">${ledger.chains.length} chains</td>
       <td class="number text-amber">${formatTokens(pt.tokens)}</td>
+      <td class="number text-dim">${formatDuration(pt.durationMs)}</td>
       <td class="number text-amber">${formatCost(pt.estimatedCostEur)}</td>
       <td></td>
     </tr>`;
   }
   body.innerHTML = html;
-}
-
-function renderVerdicts() {
-  const list = $('#verdicts-list');
-  const verdicts = state.verdicts;
-  if (!verdicts || verdicts.length === 0) {
-    list.innerHTML = '<span class="text-dim">no verdicts yet</span>';
-    return;
-  }
-  let html = '';
-  verdicts.forEach((v, i) => {
-    const cls = v.verdict === 'PASS' ? 'verdict-pass' : 'verdict-fail';
-    html += `<div class="verdict-entry">
-      <span class="verdict-idx">#${i + 1}</span>
-      <span class="verdict-agent">${v.agent}</span>
-      <span class="${cls}">${v.verdict}</span>
-    </div>`;
-  });
-  list.innerHTML = html;
 }
 
 function renderTaskInfo() {

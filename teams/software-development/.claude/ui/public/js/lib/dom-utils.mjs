@@ -35,3 +35,12 @@ export function formatCost(eur) {
   if (eur == null) return '—';
   return '€' + eur.toFixed(2);
 }
+
+export function formatDuration(ms) {
+  if (!ms) return '—';
+  const s = Math.round(ms / 1000);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return rem > 0 ? `${m}m ${rem}s` : `${m}m`;
+}
