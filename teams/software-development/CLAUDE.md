@@ -74,27 +74,30 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 
 ## Orchestra State Protocol
 
-The Control Hub UI monitors `.orchestra/` via file watcher. The orchestrator MUST call the update script at every chain step. This is mechanical — always do it, no exceptions.
+The Control Hub UI runs at `http://localhost:3170`. The orchestrator MUST report state via the UI API at every chain step — this activates stuck detection, escalation, and cost tracking. This is mechanical — always do it, no exceptions.
 
-**Script:** `.claude/.orchestra/update.mjs` (relative to project root)
-
+**After each agent completes — report verdict:**
 ```bash
-# Chain start — before invoking first agent
-node .claude/.orchestra/update.mjs chain-start '{"tier":2,"taskId":"T1234","summary":"task description","chain":["architect","quality-gate","developer","docs"]}'
+curl -s -X POST http://localhost:3170/api/chain/verdict \
+  -H 'Content-Type: application/json' \
+  -d '{"agent":"architect","verdict":"PASS","tokens":12000,"durationMs":45000,"model":"sonnet"}' \
+  2>/dev/null; echo
+```
 
-# After each agent completes
-node .claude/.orchestra/update.mjs verdict '{"agent":"architect","verdict":"PASS","tokens":12000,"durationMs":45000}'
-
-# Agent is BLOCKED
-node .claude/.orchestra/update.mjs blocked '{"agent":"developer"}'
+**Agent is BLOCKED:**
+```bash
+curl -s -X POST http://localhost:3170/api/chain/verdict \
+  -H 'Content-Type: application/json' \
+  -d '{"agent":"developer","verdict":"BLOCKED","tokens":8000,"durationMs":30000,"model":"sonnet"}' \
+  2>/dev/null; echo
 ```
 
 **When to call:**
-- `chain-start` — immediately before invoking the first agent; use the actual tier chain from the Dev Cycle table
 - `verdict` — after every agent returns its RESULT; read token count from the Claude Code status bar; `durationMs` is approximate (seconds × 1000)
-- `blocked` — when an agent outputs BLOCKED and the chain cannot proceed
+- Chain start and task creation are managed via the UI (New Task → Start Chain buttons)
+- If UI is not running, skip silently (`2>/dev/null`) — never block on this
 
-The script handles chain advancement, stuck detection, ledger, and atomic writes automatically.
+The UI handles chain advancement, GSD stuck detection (3-rule), Superpowers escalation, ledger, and atomic writes.
 
 **What Claude Code NEVER does:**
 - Does NOT design implementations — that is the architect's role
