@@ -295,10 +295,11 @@ export function createStateManager() {
       const ledger = await getLedger();
       const currentChain = ledger.chains[ledger.chains.length - 1];
       if (currentChain) {
-        const costEur = calculateCost(tokens || 0, model || 'sonnet');
+        const resolvedModel = await resolveAgentModel(agent, model);
+        const costEur = calculateCost(tokens || 0, resolvedModel);
         currentChain.entries.push({
           agent,
-          model: model || 'sonnet',
+          model: resolvedModel,
           tokens: tokens || 0,
           durationMs: durationMs || 0,
           verdict,
@@ -342,6 +343,26 @@ export function createStateManager() {
     }
   })();
 
+  // --- Agent model lookup (reads frontmatter from agent .md files) ---
+
+  const agentModelCache = {};
+
+  async function resolveAgentModel(agent, provided) {
+    if (provided && provided !== 'sonnet') return provided; // trust explicit non-default
+    if (agentModelCache[agent]) return agentModelCache[agent];
+    try {
+      const { getAgentsDir } = await import('./config.mjs');
+      const agentFile = join(getAgentsDir(), `${agent}.md`);
+      const content = await readFile(agentFile, 'utf-8');
+      const match = content.match(/^model:\s*(\S+)/m);
+      if (match) {
+        agentModelCache[agent] = match[1];
+        return match[1];
+      }
+    } catch {}
+    return provided || 'sonnet';
+  }
+
   // --- History log (append-only) ---
 
   async function appendHistory(chain, taskSummary) {
@@ -371,13 +392,14 @@ export function createStateManager() {
     if (!currentChain) return { ok: false, reason: 'no active chain' };
 
     const { calculateCost } = await import('./cost-calculator.mjs');
-    const costEur = calculateCost(tokens || 0, model || 'sonnet');
+    const resolvedModel = await resolveAgentModel(agent, model);
+    const costEur = calculateCost(tokens || 0, resolvedModel);
 
     // Update existing entry for this agent if present, otherwise append
     const existing = currentChain.entries.findIndex(e => e.agent === agent);
     const entry = {
       agent,
-      model: model || 'sonnet',
+      model: resolvedModel,
       tokens: tokens || 0,
       durationMs: durationMs || 0,
       verdict: verdict || '—',
