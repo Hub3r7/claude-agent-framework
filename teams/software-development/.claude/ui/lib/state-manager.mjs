@@ -3,7 +3,7 @@ import { join, dirname } from 'node:path';
 import { existsSync, writeFileSync, renameSync, mkdirSync } from 'node:fs';
 import { EventEmitter } from 'node:events';
 import { randomUUID } from 'node:crypto';
-import { getStateDir, getProjectRoot } from './config.mjs';
+import { getStateDir, getProjectRoot, getAgentsDir } from './config.mjs';
 
 const DEFAULT_WORKFLOW = {
   version: 1,
@@ -348,10 +348,9 @@ export function createStateManager() {
   const agentModelCache = {};
 
   async function resolveAgentModel(agent, provided) {
-    if (provided && provided !== 'sonnet') return provided; // trust explicit non-default
+    if (provided && provided !== 'sonnet') return provided;
     if (agentModelCache[agent]) return agentModelCache[agent];
     try {
-      const { getAgentsDir } = await import('./config.mjs');
       const agentFile = join(getAgentsDir(), `${agent}.md`);
       const content = await readFile(agentFile, 'utf-8');
       const match = content.match(/^model:\s*(\S+)/m);
