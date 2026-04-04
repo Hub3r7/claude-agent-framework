@@ -1,4 +1,4 @@
-import { readFile, writeFile, mkdir, watch } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, watch, appendFile } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { existsSync, writeFileSync, renameSync, mkdirSync } from 'node:fs';
 import { EventEmitter } from 'node:events';
@@ -308,7 +308,13 @@ export function createStateManager() {
         currentChain.totals.tokens = currentChain.entries.reduce((s, e) => s + e.tokens, 0);
         currentChain.totals.durationMs = currentChain.entries.reduce((s, e) => s + e.durationMs, 0);
         currentChain.totals.estimatedCostEur = currentChain.entries.reduce((s, e) => s + e.estimatedCostEur, 0);
-        await saveLedger(ledger);
+        if (wf.workflow.phase === 'completed') {
+          currentChain.completedAt = new Date().toISOString();
+          await saveLedger(ledger);
+          await appendHistory(currentChain);
+        } else {
+          await saveLedger(ledger);
+        }
       }
     }
 
@@ -335,6 +341,26 @@ export function createStateManager() {
       // Watcher not available
     }
   })();
+
+  // --- History log (append-only) ---
+
+  async function appendHistory(chain) {
+    try {
+      const historyPath = join(getStateDir(), '..', 'history.jsonl');
+      const line = JSON.stringify({
+        chainId: chain.id,
+        task: chain.task,
+        tier: chain.tier,
+        startedAt: chain.startedAt,
+        completedAt: chain.completedAt || new Date().toISOString(),
+        entries: chain.entries,
+        totals: chain.totals,
+      });
+      await appendFile(historyPath, line + '\n', 'utf-8');
+    } catch {
+      // History write is best-effort — never block on failure
+    }
+  }
 
   // --- Orchestrator / free-form ledger entry (no chain advancement) ---
 
@@ -368,6 +394,12 @@ export function createStateManager() {
     currentChain.totals.estimatedCostEur = currentChain.entries.reduce((s, e) => s + e.estimatedCostEur, 0);
 
     await saveLedger(ledger);
+
+    // Append to history.jsonl — orchestrator reports at chain end
+    if (agent === 'orchestrator') {
+      await appendHistory(currentChain);
+    }
+
     return { ok: true, agent, costEur };
   }
 
