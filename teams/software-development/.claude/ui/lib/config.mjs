@@ -49,7 +49,7 @@ function derivePaths(root) {
   return {
     PROJECT_ROOT: root,
     NOTES_DIR: join(root, '.agentNotes'),
-    STATE_DIR: join(root, '.orchestra', 'state'),
+    STATE_DIR: join(root, '.claude', '.orchestra', 'state'),
     AGENTS_DIR: join(root, '.claude', 'agents'),
   };
 }

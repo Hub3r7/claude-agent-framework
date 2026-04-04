@@ -17,7 +17,8 @@ import { randomBytes } from 'node:crypto';
 // --- Paths ---
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const STATE_DIR = join(__dir, 'state'); // .orchestra/state/ — matches UI config.mjs
+// Script lives at .claude/.orchestra/update.mjs → state goes to .claude/.orchestra/state/
+const STATE_DIR = join(__dir, 'state');
 
 if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true });
 

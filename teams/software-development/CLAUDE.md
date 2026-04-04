@@ -76,17 +76,17 @@ Claude Code is the main orchestrator of all agent chains. The user is the produc
 
 The Control Hub UI monitors `.orchestra/` via file watcher. The orchestrator MUST call the update script at every chain step. This is mechanical — always do it, no exceptions.
 
-**Script:** `.orchestra/update.mjs` (relative to project root)
+**Script:** `.claude/.orchestra/update.mjs` (relative to project root)
 
 ```bash
 # Chain start — before invoking first agent
-node .orchestra/update.mjs chain-start '{"tier":2,"taskId":"T1234","summary":"task description","chain":["architect","quality-gate","developer","docs"]}'
+node .claude/.orchestra/update.mjs chain-start '{"tier":2,"taskId":"T1234","summary":"task description","chain":["architect","quality-gate","developer","docs"]}'
 
 # After each agent completes
-node .orchestra/update.mjs verdict '{"agent":"architect","verdict":"PASS","tokens":12000,"durationMs":45000}'
+node .claude/.orchestra/update.mjs verdict '{"agent":"architect","verdict":"PASS","tokens":12000,"durationMs":45000}'
 
 # Agent is BLOCKED
-node .orchestra/update.mjs blocked '{"agent":"developer"}'
+node .claude/.orchestra/update.mjs blocked '{"agent":"developer"}'
 ```
 
 **When to call:**
